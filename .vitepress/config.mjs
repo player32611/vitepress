@@ -10,7 +10,7 @@ export default defineConfig({
     nav: [
       { text: '主页', link: '/' },
       { text: 'vitepress', link: '/pages/vitepress/quick-start' },
-      { text: '前端', link: '/pages/front-end/front-end' },
+      { text: '前端', link: '/pages/front-end/html' },
       { text: 'GameMakerStudio 2', link: '/pages/gms2/gms2' }
     ],
 
@@ -25,7 +25,7 @@ export default defineConfig({
       {
         text: '前端',
         items: [
-          { text: 'html', link: '/front-end' },
+          { text: 'html', link: '/pages/front-end/html' },
           { text: 'Runtime API Examples', link: '/api-examples' }
         ]
       },
