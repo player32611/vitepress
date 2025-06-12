@@ -8,15 +8,31 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' }
+      { text: '主页', link: '/' },
+      { text: 'vitepress', link: '/pages/vitepress/quick-start' },
+      { text: '前端', link: '/pages/front-end/front-end' },
+      { text: 'GameMakerStudio 2', link: '/pages/gms2/gms2' }
     ],
 
     sidebar: [
       {
-        text: 'Examples',
+        text: 'vitepress使用指南',
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
+          { text: '快速开始', link: '/pages/vitepress/quick-start' },
+          { text: '特殊语法', link: '/pages/vitepress/basic-grammer' }
+        ]
+      },
+      {
+        text: '前端',
+        items: [
+          { text: 'html', link: '/front-end' },
+          { text: 'Runtime API Examples', link: '/api-examples' }
+        ]
+      },
+      {
+        text: 'GameMakerStudio 2',
+        items: [
+          { text: 'html', link: '/front-end' },
           { text: 'Runtime API Examples', link: '/api-examples' }
         ]
       }
