@@ -25,8 +25,11 @@ export default defineConfig({
       {
         text: '前端',
         items: [
-          { text: 'html', link: '/pages/front-end/html' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
+          { text: 'HTML', link: '/pages/front-end/html' },
+          { text: 'CSS', link: '/pages/front-end/css' },
+          { text: 'JavaScript', link: '/pages/front-end/javascript' },
+          { text: 'React', link: '/pages/front-end/react' },
+          { text: '网络请求', link: '/pages/front-end/network-requests' }
         ]
       },
       {
@@ -39,7 +42,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/player32611' }
     ]
   }
 })
