@@ -110,9 +110,6 @@ selector::pseudo-element {
 
 **::selection** : 伪元素匹配用户选择的元素部分。
 
-
-
-
 ## 常用属性
 
 ### background
