@@ -4,22 +4,22 @@ layout: home
 
 hero:
   name: "我的个人笔记网页"
-  text: "A VitePress Site"
-  tagline: My great project tagline
+  text: "快速了解各类知识"
+  tagline: 闲着没事就来翻翻
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
+      text: vitepress
+      link: /pages/vitepress/quick-start
     - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: 前端
+      link: /pages/front-end/html
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: 语法查询
+    details: 快速查找你需要的语法
+  - title: 代码模板
+    details: 为您的代码提供样式模板，让代码编写方便快捷
+  - title: 样例参考
+    details: 为您想实现的效果提供参考
 ---
 
