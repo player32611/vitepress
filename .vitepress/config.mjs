@@ -36,8 +36,7 @@ export default defineConfig({
       {
         text: 'GameMakerStudio 2',
         items: [
-          { text: 'html', link: '/front-end' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
+          { text: '常用函数', link: '/pages/gms2/common-functions' }
         ]
       }
     ],
