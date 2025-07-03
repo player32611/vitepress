@@ -30,6 +30,7 @@ export default defineConfig({
           { text: 'JavaScript', link: '/pages/front-end/javascript' },
           { text: 'DOM', link: '/pages/front-end/dom' },
           { text: 'React', link: '/pages/front-end/react' },
+          { text: 'webpack', link: '/pages/front-end/webpack' },
           { text: '网络请求', link: '/pages/front-end/network-requests' }
         ]
       },
