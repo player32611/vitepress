@@ -29,6 +29,7 @@ export default defineConfig({
           { text: 'CSS', link: '/pages/front-end/css' },
           { text: 'JavaScript', link: '/pages/front-end/javascript' },
           { text: 'DOM', link: '/pages/front-end/dom' },
+          { text: 'npm与其他东西', link: '/pages/front-end/npm-and-others' },
           { text: 'React', link: '/pages/front-end/react' },
           { text: 'webpack', link: '/pages/front-end/webpack' },
           { text: '网络请求', link: '/pages/front-end/network-requests' }

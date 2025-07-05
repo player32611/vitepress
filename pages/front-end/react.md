@@ -14,7 +14,7 @@
 
 **执行命令：**
 
-````Terminal
+````
 npx create-react-app react-basic
 ````
 
@@ -172,7 +172,7 @@ Redux 把整个数据修改的流程分成了三个核心概念，分别是：**
 
 在 React 项目中执行以下命令来安装 Redux Toolkit 和 react-redux ：
 
-````Terminal
+````
 npm i @reduxjs/toolkit react-redux
 ````
 
@@ -304,7 +304,7 @@ addToNum (state, action) {
 
 对 React 项目安装 ReactRouter :
 
-````Terminal
+````
 npm i react-router-dom
 ````
 

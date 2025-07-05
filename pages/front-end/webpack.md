@@ -8,6 +8,20 @@
 
 [[toc]]
 
+## 什么是 webpack
+
+webpack 是一个模块打包器（构建工具）。它的主要目标是将 JavaScript 文件打包在一起，缩减文件大小，打包后的文件用于在浏览器中使用，但它也能够胜任转换、打包或包裹任何资源。
+
+## webpack 原理和概念
+
+树结构：在一个入口文件中引入所有资源，形成所有依赖关系树状图
+
+模块：对于 webpack 来说，所有的资源（css,img...）都算作模块
+
+chunk：打包过程中被操作的模块文件叫做 chunk ，例如异步加载一个模块就是一个 chunk
+
+bundel：bundle是最后打包后的文件，最终文件可以和 chunk 长得一模一样，但是大部分情况下他是多个 chunk 的集合。
+
 
 ## 使用 webpack
 
@@ -15,7 +29,7 @@
 
 **执行命令：**
 
-````Terminal
+````
 npm i webpack webpack-cli --save-dev
 ````
 ### 配置命令
