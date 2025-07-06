@@ -8,9 +8,7 @@
 
 [[toc]]
 
-## 网络请求方法
-
-### fetch
+## fetch
 
 `fetch()` 方法是一种常用的网络请求的方法，在现代浏览器中原生支持。
 
@@ -29,7 +27,7 @@ const data = await res.json()
 
 **更多 fetch 信息请点击[此处](https://developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API)**
 
-### XMLHttpRequest
+## XMLHttpRequest
 
 使用 `XMLHttpRequest` 也可以发送请求，但是很多情况下都没有使用Fetch简便
 
@@ -58,70 +56,50 @@ xhr.onreadystatechange = () => {
 }
 ````
 
-### axios
+## axios
 
 Axios 是一个基于 promise 网络请求库，作用于node.js 和浏览器中。
 
 使用前须安装
 
-````Terminal
+````
 npm install axios
 ````
 
-为了在CommonJS中使用 require（） 导入时获得TypeScript类型推断（智能感知/自动完成），请使用以下方法：
+为使用 axios ，需先引入 axios
 
 ````JavaScript
-const axios = require('axios').default;
-// axios.<method> 能够提供自动完成和参数类型推断功能
+import axios from "axios"
 ````
 
-**用例**
-
-发起一个 `GET` 请求
+**GET 基础用例**
 
 ````JavaScript
-const axios = require('axios');
-
-// 向给定ID的用户发起请求
-axios.get('/user?ID=12345')
-  .then(function (response) {
-    // 处理成功情况
-    console.log(response);
-  })
-  .catch(function (error) {
-    // 处理错误情况
-    console.log(error);
-  })
-  .finally(function () {
-    // 总是会执行
-  });
-
-// 上述请求也可以按以下方式完成（可选）
-axios.get('/user', {
-    params: {
-      ID: 12345
-    }
-  })
-  .then(function (response) {
-    console.log(response);
-  })
-  .catch(function (error) {
-    console.log(error);
-  })
-  .finally(function () {
-    // 总是会执行
-  });  
-
-// 支持async/await用法
-async function getUser() {
-  try {
-    const response = await axios.get('/user?ID=12345');
-    console.log(response);
-  } catch (error) {
-    console.error(error);
-  }
-}
+axios.get('url')
+    .then(res => {
+        //代码片段
+    })
+    .catch(err => {
+        //代码片段
+    })
 ````
+
+**POST 基础用例**
+
+````JavaScript
+axios.post('url', {
+    firstName: 'Fred',
+    lastName: 'Flintstone'
+})
+    .then(res => {
+        //代码片段
+    })
+    .catch(err => {
+        //代码片段
+    });
+````
+
+与 Promise 类似， `.then` 用于处理请求成功后的操作， `.catch` 用于处理请求失败后的操作
 
 **更多 axios 信息请点击[此处](https://www.axios-http.cn/docs/intro)**
 
