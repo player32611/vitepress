@@ -46,7 +46,7 @@ npm i webpack webpack-cli --save-dev
 
 只有和入口产生直接/间接的引入关系，才会被打包。
 
-## webpack 入口与与出口
+## webpack 入口与出口
 
 ### 入口
 
