@@ -30,9 +30,10 @@ export default defineConfig({
           { text: 'JavaScript', link: '/pages/front-end/javascript' },
           { text: 'DOM', link: '/pages/front-end/dom' },
           { text: 'npm与其他东西', link: '/pages/front-end/npm-and-others' },
-          { text: 'React', link: '/pages/front-end/react' },
+          { text: '网络请求', link: '/pages/front-end/network-requests' },
           { text: 'webpack', link: '/pages/front-end/webpack' },
-          { text: '网络请求', link: '/pages/front-end/network-requests' }
+          { text: 'React', link: '/pages/front-end/react' },
+          { text: 'Vue', link: '/pages/front-end/vue' }
         ]
       },
       {
