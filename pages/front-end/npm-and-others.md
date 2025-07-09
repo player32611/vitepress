@@ -54,6 +54,8 @@ package.json 文件中版本号的说明，安装的时候代表不同的含义:
 
 `dependencies` 依赖包列表。如果依赖包没有安装， npm 会自动将依赖包安装在 node_module 目录下。
 
+`devDependencies` 开发时依赖包列表。
+
 `repository` 包代码存放的地方的类型，可以是 git 或 svn ，git 可在 Github 上
 
 `main` 指定了程序的主入口文件， require('moduleName') 就会加载这个文件。这个字段的默认值是模块根目录下面的 index.js 。
