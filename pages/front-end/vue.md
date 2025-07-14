@@ -549,6 +549,8 @@ createApp(App).mount('#app')
 
 ### 组件间通信
 
+**数据父传子**
+
 `props` : 用于父传子通信。在子组件中添加 `props` 属性并设置形参，并在父组件中为使用的子组件的对应形参传值。
 
 ::: code-group
@@ -611,6 +613,8 @@ createApp(App).mount('#app')
 
 :::
 
+**数据子传父**
+
 `props` 也可使用对象的方式书写：
 
 ````vue
@@ -632,6 +636,556 @@ props:{
 `default` : 默认值
 
 `required` : 是否必需
+
+`$emit` : 子组件通过触发事件的方式传递数据给父组件，调用 `$emit` 并设定事件名称与传递数据，在父组件中接收事件并触发父组件事件
+
+::: code-group
+
+````vue [App.vue]
+<template>
+<div>
+    <div>{{ count }}</div>
+    <HelloWorld @myChangeEvent="myAppEvent"></HelloWorld>
+    <HelloWorld @myChangeEvent="myAppEvent"></HelloWorld>
+</div>
+</template>
+
+<script>
+    import HelloWorld from './components/HelloWorld.vue';
+    export default {
+        name:"App",
+        data(){
+            return{
+                count:0
+            }
+        },
+        components:{
+            HelloWorld
+        },
+        methods:{
+            myAppEvent(data) {
+                this.count+=data
+            }
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>
+````
+
+````vue [HelloWorld.vue] {16}
+<template>
+<div>
+<button @click="change(1)">+1</button>
+<button @click="change(2)">+2</button>
+</div>
+</template>
+
+<script>
+    export default {
+        name:"HelloWorld",
+        data(){
+            return{}
+        },
+        methods:{
+            change(num){
+                this.$emit('myChangeEvent',num)
+            }
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>
+````
+
+:::
+
+**子组件调用父组件的方法**
+
+`$parent` : 用于访问上一级父组件
+
+`$root` : 用于访问根组件
+
+::: code-group
+
+````vue [App.vue]
+<template>
+<div>
+    <div>{{ count }}</div>
+    <HelloWorld @addEvent="addAppNum"></HelloWorld>
+    <HelloWorld @addEvent="addAppNum"></HelloWorld>
+</div>
+</template>
+
+<script>
+    import HelloWorld from './components/HelloWorld.vue';
+    export default {
+        name:"App",
+        data(){
+            return{
+                count:0
+            }
+        },
+        components:{
+            HelloWorld
+        },
+        methods:{
+            addAppNum(data) {
+                this.count+=data
+                console.log("addAppNum")
+            },
+            setAppNum(num){
+                this.count = num
+                console.log("setAppNum")
+            }
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>
+````
+
+````vue [HelloWorld.vue] {17}
+<template>
+<div>
+<button @click="add(1)">+1</button>
+<button @click="add(2)">+2</button>
+<button @click="set(0)">0</button>
+</div>
+</template>
+
+<script>
+    export default {
+        name:"HelloWorld",
+        data(){
+            return{}
+        },
+        methods:{
+            add(num){
+                this.$emit('addEvent',num)
+            },
+            set(num){
+                this.$parent.setAppNum(num)
+            }
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>
+````
+
+:::
+
+**父组件调用子组件的方法**
+
+`$refs` 用于访问所有子组件，用 `ref` 设置子组件别名
+
+::: code-group
+
+````vue [App.vue] {5,6,24,27}
+<template>
+<div>
+    <button @click="addOne(1)">One+1</button>
+    <button @click="setOne(0)">One=0</button>
+    <HelloWorld ref="one"></HelloWorld>
+    <HelloWorld ref="two"></HelloWorld>
+</div>
+</template>
+
+<script>
+    import HelloWorld from './components/HelloWorld.vue';
+    export default {
+        name:"App",
+        data(){
+            return{
+                count:0
+            }
+        },
+        components:{
+            HelloWorld
+        },
+        methods:{
+            addOne(num){
+                this.$refs.one.addHelloWorld(num)
+            },
+            setOne(num){
+                this.$refs.one.setHelloWorld(num)
+            }
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>
+````
+
+````vue [HelloWorld.vue]
+<template>
+<div>
+HelloWorldCount: {{  count }}
+</div>
+</template>
+
+<script>
+    export default {
+        name:"HelloWorld",
+        data(){
+            return{
+                count:0
+            }
+        },
+        methods:{
+            addHelloWorld(num){
+                this.count+=num
+                console.log("addHelloWorldNum")
+            },
+            setHelloWorld(num){
+                this.count = num
+                console.log("setHelloWorldNum")
+            }
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>
+````
+
+:::
+
+### 插槽 slot
+
+插槽可以实现组件的扩展性，抽取共性，保留不同
+
+在子组件中需要插入的位置添加 `slot` 标签并设置插槽名称，在父组件中使用 `templat` 标签并在 `v-slot` 属性中设置需要插入的插槽。`slot` 标签内部的值为默认值。
+
+::: code-group
+
+````vue [App.vue] {5,8}
+<template>
+<div>
+    <HelloWorld></HelloWorld>
+    <HelloWorld>
+        <template v-slot:one><a href="">aaaa</a></template>
+    </HelloWorld>
+    <HelloWorld>
+        <template v-slot:two><button>bbbb</button></template>
+    </HelloWorld>
+</div>
+</template>
+
+<script>
+    import HelloWorld from './components/HelloWorld.vue';
+    export default {
+        name:"App",
+        data(){
+            return{}
+        },
+        components:{
+            HelloWorld
+        },
+    }
+</script>
+
+<style scoped>
+
+</style>
+````
+
+````vue [HelloWorld.vue] {5,10}
+<template>
+<div>
+    <span>
+    Hello-
+    <slot name="one">####</slot>
+    -World
+</span>
+<span>
+    World-
+    <slot name="two">####</slot>
+    -Hello
+</span>
+</div>
+
+</template>
+
+<script>
+    export default {
+        name:"HelloWorld",
+        data(){
+            return{}
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>
+````
+
+:::
+
+插槽中可正常使用父组件中的属性。
+
+**插槽中使用子组件中的属性**
+
+先在插槽中定义属性代表的数据，再在父组件中设置子组件名称，用 js 语法访问数据。
+
+::: code-group
+
+````vue [App.vue] {3-11}
+<template>
+<div>
+    <HelloWorld>
+        <template v-slot:default="children">{{children.children}}</template>
+    </HelloWorld>
+    <HelloWorld>
+        <template v-slot:one="children">{{children.children}}</template>
+    </HelloWorld>
+    <HelloWorld>
+        <template v-slot:two="children">{{children.children}}</template>
+    </HelloWorld>
+</div>
+</template>
+
+<script>
+    import HelloWorld from './components/HelloWorld.vue';
+    export default {
+        name:"App",
+        data(){
+            return{}
+        },
+        components:{
+            HelloWorld
+        },
+    }
+</script>
+
+<style scoped>
+
+</style>
+````
+
+````vue [HelloWorld.vue] {3-5}
+<template>
+<div>
+    <span>Hello-<slot :children="childrenData">####</slot>-World</span>
+    <span>Hello-<slot name="one" :children="childrenData">####</slot>-World</span>
+    <span>Hello-<slot name="two" :children="childrenData">####</slot>-World</span>
+</div>
+
+</template>
+
+<script>
+    export default {
+        name:"HelloWorld",
+        data(){
+            return{
+                childrenData:"childrenData"
+            }
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>
+````
+
+:::
+
+### 生命周期函数
+
+生命周期函数指在组件创建、更新与销毁过程中自动调用的一些函数。具体见[此处](https://cn.vuejs.org/guide/essentials/lifecycle.html)。
+
+````vue
+<script>
+    export default {
+        name:"HelloWorld",
+        data(){
+            return{}
+        },
+        beforeCreate(){
+            console.log("创建实例之前自动调用 beforeCreate")
+        }
+    }
+</script>
+````
+
+`this.$nextTick(()=>{})` : 用于将回调延迟到下次 DOM 更新循环之后执行。在修改数据之后立即使用它，然后等待 DOM 更新。
+
+`keep-alive`标签 : 缓存其中被销毁的元素
+
+### 组件内网络请求
+
+使用 axios 进行网络请求：
+
+````vue
+<script>
+    import axios from 'axios';
+    export default {
+        name:"Axios",
+        data(){
+            return{
+                data:{}
+            }
+        },
+        mounted(){
+            axios.get(url)
+            .then(res=>{
+                this.data = res.data
+            }).catch(err=>{
+                console.log(err)
+            })
+        }
+    }
+</script>
+````
+
+**封装网络请求**
+
+新建 js 文件并在其中写入网络请求的逻辑
+
+````JavaScript
+import axios from "axios";
+
+const instance = axios.create({
+    baseURL: 'baseurl'
+})
+
+export function get(url, params) {
+    return instance.get(url, {
+        params
+    })
+}
+
+export function post(url, params) {
+    return instance.post(url, params, {
+
+    })
+}
+
+export function del(url) {
+    return instance.delete(url)
+}
+````
+
+**使用封装的网络请求**
+
+在组件中导入封装的网络请求文件并使用
+
+````vue
+<script>
+    import { get } from '@/network/request'
+    export default {
+        name:"Axios",
+        data(){
+            return{
+                data:{}
+            }
+        },
+        mounted(){
+            get(url).then(res=>{
+                this.data = res.data
+            }).catch(err=>{
+                console.log(err)
+            })
+        }
+    }
+</script>
+````
+
+## VueRouter 路由应用
+
+Vue Router 是 Vue.js 的官方路由。它与 Vue.js 核心深度集成，让用 Vue.js 构建单页应用变得轻而易举。
+
+`create-vue` 脚手架工具中自带安装 VueRouter 的选项，也可以执行以下命令手动安装：
+
+````
+npm install vue-router@4
+````
+
+`src/components` 小组件
+
+`src/views` 页面级别组件
+
+`src/router` 路由配置文件
+
+### 创建路由
+
+1、在`src/router`的 `index.js`文件中导入创建路由的方法`createRouter()`和`createWebHistory()`
+
+2、配置路由设置
+
+3、配置路由表
+
+4、导出路由
+
+5、在主入口文件中使用路由
+
+::: code-group
+
+````JavaScript [index.js]
+import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+  ],
+})
+
+export default router
+````
+
+````JavaScript [main.js] 
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+
+const app = createApp(App)
+
+app.use(router)
+
+app.mount('#app')
+````
+
+:::
+
+`path` : 路径
+
+`name` : 名称
+
+`component` : 对应的组件(使用前需导入)
+
+### 路由跳转
+
+使用自带的`RouterLink`标签进行跳转，跳转后的组件在`RouterView`标签中显示。
+
+````vue
+<template>
+    <div class="wrapper">
+        <RouterLink to="/">Home</RouterLink>
+        <RouterLink to="/about">About</RouterLink>
+    </div>
+    <RouterView />
+</template>
+````
 
 ## 更多信息
 
