@@ -1,9 +1,5 @@
 # Vue
 
-::: danger 警告
-该页面尚未完工!
-:::
-
 ## 目录
 
 [[toc]]
@@ -613,8 +609,6 @@ createApp(App).mount('#app')
 
 :::
 
-**数据子传父**
-
 `props` 也可使用对象的方式书写：
 
 ````vue
@@ -636,6 +630,8 @@ props:{
 `default` : 默认值
 
 `required` : 是否必需
+
+**数据子传父**
 
 `$emit` : 子组件通过触发事件的方式传递数据给父组件，调用 `$emit` 并设定事件名称与传递数据，在父组件中接收事件并触发父组件事件
 
@@ -1173,6 +1169,16 @@ app.mount('#app')
 
 `component` : 对应的组件(使用前需导入)
 
+也可使用懒加载方式加载组件，此种方法无需提前导入
+
+````JavaScript
+{
+    path: '/about',
+    name: 'about',
+    component: () => import('../views/AboutView.vue'),
+},
+````
+
 ### 路由跳转
 
 使用自带的`RouterLink`标签进行跳转，跳转后的组件在`RouterView`标签中显示。
@@ -1185,6 +1191,790 @@ app.mount('#app')
     </div>
     <RouterView />
 </template>
+````
+
+**自定义 RouterLink **
+
+使用全局属性 `$router` 进行主动页面跳转
+
+````vue
+<button @click="$router.push(url)"></button>
+<button @click="$router.go(num)"></button>
+````
+
+`url` : 想要跳转的地址
+
+`num` : 正数为前进一定页面，负数为后退一定页面
+
+::: tip 提示
+`$router`表示一整个路由，`$route`表示当前页面路由
+:::
+
+### 路由页面视图
+
+`RouterView` 标签用于在指定部分显示路由，使用方法类似`slot`插槽
+
+### 嵌套路由
+
+在`index.js`中配置 children 属性即可设置嵌套路由。嵌套路由的地址为父地址与子地址组合
+
+````vue
+{
+    path: '/home',
+    name: 'home',
+    component: HomeView,
+    children: [
+        {
+          path: 'home1',
+          component: () => import('../views/Home1.vue')
+        },
+        {
+          path: 'home2',
+          component: () => import('../views/Home2.vue')
+        }
+    ]
+},
+````
+
+`path` : 子路由地址，设置为 ' ' 时表示默认路由
+
+### 路由传参
+
+传递参数主要有两种类型：params 和 query
+
+**params**
+
+1、设置参数: 在`index.js`中配置传递参数的名字
+
+````JavaScript {2}
+{
+    path: 'home1/:num',
+    component: () => import('../views/Home1.vue')
+},
+````
+
+此处 num 就是参数的名字
+
+2、传递参数: 在路由跳转的时候对应位置写入要传递的值
+
+````vue
+<RouterLink to="/home/home1/1">Home1</RouterLink>
+````
+
+3、参数接收: 使用`$route`中的 params 属性获取传递的参数
+
+````vue
+<div>num: {{ $route.params.num }}</div>
+````
+
+**query**
+
+1、传递参数: 在路由跳转的时候写入参数名与参数值，可以使用对象的格式
+
+````vue
+<RouterLink to="/home/home1?msg=message111&num=111">Home1</RouterLink>
+<RouterLink :to="{path:'/home/home2',query:{msg:'message222',num:222}}">Home2</RouterLink>
+````
+
+2、参数接收: 使用`$route`中的 query 属性获取传递的参数
+
+````vue
+<h1>This is a home1 page</h1>
+{{ $route.query.msg }}+{{ $route.query.num }}
+````
+
+使用自定义事件跳转路由时参数传递方法同上
+
+### 重定向和别名
+
+**重定向** : 在 routes 配置中完成，要重定向 /a 到 /b
+
+````vue {4}
+{
+    path: '/home',
+    name: 'home',
+    redirect: '/about',
+    component: HomeView,
+}
+````
+
+````vue {4}
+{
+    path: '/home',
+    name: 'home',
+    redirect: {name:'About'},
+    component: HomeView,
+}
+````
+
+````vue {4}
+{
+    path: '/home',
+    name: 'home',
+    redirect: to => { return { path: 'About' },query:{msg:'message',num:to.params.id} },
+    component: HomeView,
+}
+````
+
+以上写法均可
+
+**别名** : 当用户访问别名网址时，匹配原地址
+
+````vue {4}
+{
+    path: '/home',
+    name: 'home',
+    alias: '/h',
+    component: HomeView,
+}
+````
+
+````vue {4}
+{
+    path: '/home',
+    name: 'home',
+    alias: ['/a','/b','/c'],
+    component: HomeView,
+}
+````
+
+### 导航守卫
+
+导航首位主要用来通过跳转或取消的方式守卫导航。
+
+**全局前置导航守卫** : 在`index.js`中的路由外层添加
+
+````JavaScript
+router.beforeEach((to, from) => {
+  return false
+})
+
+````
+
+此时阻止任何跳转
+
+````JavaScript
+router.beforeEach((to, from) => {
+  return true
+})
+
+````
+
+此时允许跳转
+
+`to` : 即将要进入的目标路由对象
+
+`from` : 当前导航正要离开的路由
+
+利用导航守卫打印地址:
+
+````JavaScript
+router.beforeEach((to, from) => {
+  console.log(from.fullPath);
+  console.log(to.fullPath);
+})
+````
+利用导航守卫设置页面标题:
+
+````JavaScript [index.js] {5-7}
+//...
+    {
+      path: '/home',
+      name: 'home',
+      component: HomeView,
+      meta: {
+        title: 'HomeView'
+      },
+    },
+//...
+router.beforeEach((to, from) => {
+  document.title = to.meta.title
+})
+//...
+````
+
+**全局后置导航守卫**
+
+````JavaScript
+router.afterEach((to, from, failure) => {
+  //...
+})
+````
+
+`failure` : 导航是否失败
+
+**路由独享导航守卫**
+
+````JavaScript {5}
+{
+    path: '/home',
+    name: 'home',
+    component: HomeView,
+    beforeEnter:(to,from)=>{}
+}
+````
+
+**组件内导航守卫**
+
+````vue
+beforeRouteEnter(to, from) {
+    // 在渲染该组件的对应路由被验证前调用
+    // 不能获取组件实例 `this` ！
+    // 因为当守卫执行时，组件实例还没被创建！
+},
+beforeRouteUpdate(to, from) {
+    // 在当前路由改变，但是该组件被复用时调用
+    // 举例来说，对于一个带有动态参数的路径 `/users/:id`，在 `/users/1` 和 `/users/2` 之间跳转的时候，
+    // 由于会渲染同样的 `UserDetails` 组件，因此组件实例会被复用。而这个钩子就会在这个情况下被调用。
+    // 因为在这种情况发生的时候，组件已经挂载好了，导航守卫可以访问组件实例 `this`
+},
+beforeRouteLeave(to, from) {
+    // 在导航离开渲染该组件的对应路由时调用
+    // 与 `beforeRouteUpdate` 一样，它可以访问组件实例 `this`
+},
+````
+
+### `KeepAlive`和 VueRouter结合使用
+
+`KeepAlive`和 VueRouter结合使用可以时页面跳转时保留原页面的数据
+
+````vue
+<RouterView v-slot="{ Component}">
+    <transition>
+        <KeepAlive>
+            <component :is="Component"></component>
+        </KeepAlive>
+    </transition>
+</RouterView>
+````
+
+````vue
+<RouterView v-slot="{ Component}">
+    <transition>
+        <KeepAlive exclude="About">
+            <component :is="Component"></component>
+        </KeepAlive>
+    </transition>
+</RouterView>
+````
+
+````vue
+<RouterView v-slot="{ Component}">
+    <transition>
+        <KeepAlive include="About">
+            <component :is="Component"></component>
+        </KeepAlive>
+    </transition>
+</RouterView>
+````
+
+`exclude` : 设置不缓存的组件
+
+`include` : 设置缓存的组件
+
+**与组件内导航守卫结合使用实现保留页面访问地址:**
+
+::: code-group
+
+````vue [App.vue]
+<template>
+    //...
+    <RouterView v-slot="{ Component}">
+        <transition>
+            <KeepAlive>
+            <component :is="Component"></component>
+            </KeepAlive>
+        </transition>
+    </RouterView>
+</template>
+````
+
+````vue [HomeView.vue] {19,22-27}
+<template>
+  <h1>This is a home page</h1>
+  <RouterLink to="/home/home1?msg=message111&num=111">Home1</RouterLink>
+  <RouterLink :to="{path:'/home/home2',query:{msg:'message222',num:222}}">Home2</RouterLink>
+  <RouterView v-slot="{ Component}">
+    <transition>
+      <KeepAlive>h
+        <component :is="Component"></component>
+      </KeepAlive>
+    </transition>
+  </RouterView>
+</template>
+
+<script>
+export default{
+  name:"HomeView",
+  data(){
+    return{
+      path:'/home'
+    }
+  },
+  activated(){
+    this.$router.push(this.path)
+  },
+  beforeRouteLeave(to,from){
+      this.path = from.fullPath
+  },
+}
+</script>
+````
+s
+:::
+
+## Pinia 状态管理
+
+Pinia 是 Vue 的专属状态管理库，它允许你跨组件或页面共享状态。
+
+### 安装 Pinia 状态管理
+
+`create-vue`中自带安装 Pinia 的选项，但你也可以手动执行以下命令安装：
+
+````
+npm install pinia
+````
+
+### 开始使用 Pinia
+
+1、**创建 pinia 实例** (根 store) 并将其传递给应用。在`main.js`中配置以下代码：
+
+````JavaScript {2,6,10}
+//...
+import { createPinia } from 'pinia'
+//...
+
+//...
+const pinia = createPinia()
+//...
+
+//...
+app.use(pinia)
+//...
+````
+
+2、**定义 Store** 。在`src/stores`中创建你想要的数据并配置，最后导出:
+
+````JavaScript
+//counter.js
+import { ref, computed } from 'vue'
+import { defineStore } from 'pinia'//导入定义容器的方法
+
+export const useCounterStore = defineStore('counter', () => {//容器 ID 必须唯一
+  const count = ref(0)//数据
+  const name = ref("counter")
+  const doubleCount = computed(() => count.value * 2)//计算属性
+  function increment() {
+    count.value++
+  }//方法
+
+  return { count, name, doubleCount, increment }
+})
+````
+
+也可使用另一种方式定义 Store
+
+````JavaScript
+import { defineStore } from 'pinia'
+
+export const useCounterStore = defineStore('counter', {
+  state: () => ({ count: 0, name: 'counter' }),
+  getters: {
+    doubleCount: (state) => state.count * 2,
+  },
+  actions: {
+    increment() {
+      this.count++
+    },
+  },
+})
+````
+
+3、**使用 Store** 。在组件中导入 Store 并使用:
+
+````vue {2,3,9-11}
+<script setup>
+import { useCounterStore } from '@/stores/counter';
+const counterStore = useCounterStore()
+</script>
+
+<template>
+  <div class="about">
+    <h1>This is an about page</h1>
+    <div>count: {{ counterStore.count }}</div>
+    <div>doubleCount: {{ counterStore.doubleCount }}</div>
+    <button @click="counterStore.increment()">increment</button>
+  </div>
+</template>
+````
+
+### 解构访问 Pinia 容器数据
+
+使用解构方法可以将单个数据从 Store 提取出来:
+
+````vue
+const counterStore = useCounterStore()
+const { count, name } = useCounterStore
+````
+
+但这样解构出的数据并不是响应式的，需要做 ref 相应式代理。正确的方法如下:
+
+````vue
+//...
+impot { storeToRefs } from 'pinia'
+//...
+
+//...
+const counterStore = useCounterStore()
+//...
+
+//...
+const { count, name } = storeToRefs(counterStore)
+//...
+````
+
+### 状态更新和 Actions 
+
+以下为 Store 外最简单更新数据的方式:
+
+````vue
+counterStore.count++
+counterStore.foo = 'name'
+````
+
+使用`$patch`可以批量更新多个数据:
+
+````vue
+counterStore.$patch({
+    count: counterStore.count + 1
+    name: 'name'
+})
+````
+
+也可`$patch`一个函数:
+
+````vue
+counterStore.$patch(state => {
+    state.count++
+    state.name = 'name'
+    state.arr.push(4)
+})
+````
+
+对于复杂逻辑，通常封装在方法中:
+
+````JavaScript
+actions: {
+    increment(data) {
+        //业务逻辑
+    },
+},
+````
+
+::: warning 警告
+不能使用箭头函数定义 action
+:::
+
+### gatters 使用
+
+gatters 类似于组件的 computed，用来封装计算属性，有缓存的功能
+
+````JavaScript
+gatters: {
+    count10 (state) {
+        return state.count + 10
+    }
+}
+````
+
+其中的函数接受一个可选参数：state 状态对象
+
+如果在 gatters 中使用了 this 则必须手动指定返回值的类型，否则类型推导不出来:
+
+````JavaScript
+gatters: {
+    count10 (): number {
+        return this.count + 10
+    }
+}
+````
+
+## 组合式 API (Composition API)
+
+组合式 API 是为了实现基于函数的逻辑复用机制而产生的。主要思想是我们将它们定义为新的 setup 函数返回的 JavaScript 变量，而不是将组件的功能（例如 state、methods、comouted等）定义为对象属性。其具体写法如下:
+
+````vue
+<template>
+    <div class="about">
+        <h3>count: {{ data.count }}</h3>
+        <h3>double: {{ data.double }}</h3>
+        <button @click="add()">+</button>
+    </div>
+</template>
+
+<script>
+import { computed, reactive } from 'vue';
+
+export default{
+  setup(){
+    const data = reactive({
+      count:0,//data数据
+      double:computed(()=>data.count*2)//计算属性
+    })
+    function add(){
+      data.count++
+    }//方法
+    return {data,add}
+  }
+}
+</script>
+````
+
+也可使用另一种写法:
+
+````vue
+<script setup>
+import { computed, reactive } from 'vue';
+const data = reactive({
+  count:0,
+  double:computed(()=>data.count*2)
+})
+function add(){
+  data.count++
+}
+</script>
+````
+
+### `setup()`方法详解
+
+`setup()`函数是 vue3 中专门新增的方法，可以理解为Composition Api 的入口。
+
+执行时机在`beforecreate()`之后，`create()`之前执行，故无法访问 this 。
+
+````vue
+setup(props,context){
+    //...
+}
+````
+
+`props` : 用于接受传递过来的属性
+
+`context` : 是一个上下文对象
+
+在使用 `script setup` 的单文件组件中，props 可以使用 `defineProps()` 宏来声明：
+
+````vue
+<script setup>
+const props = defineProps(['foo'])
+
+console.log(props.foo)
+</script>
+````
+
+还可以使用对象的形式
+
+````vue
+defineProps({
+  title: String,
+  likes: Number
+})
+````
+
+### 常用 API
+
+`ref()` : 接受一个内部值，返回一个响应式的、可更改的 ref 对象，此对象只有一个指向其内部值的属性 `.value`
+
+````vue {3,8,11,14}
+<template>
+//...
+<h3>num: {{ num }}</h3>
+//...
+</template>
+
+<script>
+import { computed, reactive, ref } from 'vue';
+export default{
+    //...
+    let num = ref(2)
+    function add(){
+        data.count++
+        num.value++
+    }
+    return {data,num,add}
+  }
+}
+</script>
+````
+
+`reactive()` : 返回一个对象的响应式代理
+
+````vue
+<script setup>
+import { reactive } from 'vue';
+const data = reactive({
+    name: name
+    count:0,
+})
+</script>
+````
+
+`toRef()` : 可以将值、refs 或 getters 规范化为 refs (3.3+)。也可以基于响应式对象上的一个属性，创建一个对应的 ref。这样创建的 ref 与其源属性保持同步：改变源属性的值将更新 ref 的值，反之亦然。
+
+`readonly()` : 接受一个对象 (不论是响应式还是普通的) 或是一个 ref，返回一个原值的只读代理。
+
+`isRef()` : 检查某个值是否为 ref
+
+### computed 计算属性 API
+
+`computed()`用来创建计算属性，返回值是一个 ref 的实例
+
+````vue
+let fullname = computed(()=>{
+    return "namea"+"-"+"name2"
+})
+````
+
+### 侦听器`watch`
+
+`watch()`函数用来监视某些数据项的变化，从而触发某些特定的操作。
+
+````vue
+let a = ref(0)
+watch(a,(newA,oldA)=>{
+    console.log(oldA+'->'+newA)
+},{immediate:true})
+````
+
+也可以同时监听多个值:
+
+````vue
+let a = ref(0)
+let b = ref(0)
+watch([a,b],([newA,newB],[oldA,oldB])=>{
+    console.log(oldA+'->'+newA+','+oldB+'->'+newB)
+},{immediate:false})
+````
+
+`immediate` : 创建时是否自动执行
+
+可以监听由`reactive()`创建的对象。
+
+````vue
+const data = reactive({
+    num1:1,
+    num2:2,
+    count:0,
+})
+watch(data,()=>{
+    console.log(data)
+})
+````
+
+单独监听对象里的某个值时，需使用回调函数。
+
+````vue
+const data = reactive({
+    num1:1,
+    num2:2,
+    count:0,
+})
+watch(()=>data.num2,(newNum,oldNum)=>{
+    console.log(oldNum+'=>'+newNum)
+})
+````
+
+`watchEffect()`立即执行传入的一个函数，并响应式追踪其依赖，并在其依赖变更时重新运行该函数。
+
+````vue
+watchEffect(()=>{
+    console.log("a"+a.value)
+})
+````
+
+### 生命周期 API
+ 
+在新版的生命周期函数，可以按需导入到组件中，且只能在`setup()`函数中使用。
+
+````vue
+onMounted(()=>{
+    console.log('onMounted...')
+})
+onUpdated(()=>{
+    console.log('onUpdated...')
+})
+````
+
+### 在组合 API 中 provide 和 inject 使用
+
+provide/inject 这对选项允许一个祖先组件向其所有子孙后代组件注入一个依赖，不论组件层次有多深，并在起上下游关系成立的时间里始终生效。
+
+provide 就相当于加强版父组件 prop ,可以跨越中间组件， inject 就相当于加强版子组件的 props
+
+**在祖先组件中定义:**
+
+````vue
+export default{
+  data(){
+    return{
+      title:"root"
+    }
+  },
+  provide(){
+    return{
+      title:this.title
+    }
+  },
+}
+````
+
+**在后代组件中接受:**
+
+````vue
+export default{
+  inject:['title']
+}
+````
+
+在`setup()`中则使用以下方式:
+
+**祖先组件中:**
+
+````vue
+setup(props,context){
+    let title = ref('root')
+    provide("title",title)
+    return {title}
+}
+````
+
+**后代组件中:**
+
+````vue
+setup(){
+    let title = inject('title')
+    return {title}
+}
+````
+
+使用常规方法时数据不是相应式的，使用组合 API 式是响应式的。
+
+### 组合式 API 处理路由
+
+常规方法中路由传参使用`$route.params`在`template`中使用参数，用`this.$route.params`在`script`中使用参数。
+
+在`setup()`中，则使用`useRoute()`和`useRouter()`来分别代表`$route`和`$router`
+
+````vue
+const route = useRoute()
+const router = useRouter()
+````
+
+在`setup()`中，对于通常方法的导航守卫，需在其前面加 on
+
+````vue
+onBeforeRouteLeave((to,from)=>{
+    //...
+})
 ````
 
 ## 更多信息
