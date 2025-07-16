@@ -1701,6 +1701,10 @@ gatters: {
 
 ## 组合式 API (Composition API)
 
+::: warning 警告
+以下大部分 API 都需要在使用前导入
+:::
+
 组合式 API 是为了实现基于函数的逻辑复用机制而产生的。主要思想是我们将它们定义为新的 setup 函数返回的 JavaScript 变量，而不是将组件的功能（例如 state、methods、comouted等）定义为对象属性。其具体写法如下:
 
 ````vue
