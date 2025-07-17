@@ -1,9 +1,5 @@
 # 网络请求
 
-::: danger 警告
-该页面尚未完工!
-:::
-
 ## 目录
 
 [[toc]]
@@ -60,11 +56,17 @@ xhr.onreadystatechange = () => {
 
 Axios 是一个基于 promise 网络请求库，作用于node.js 和浏览器中。
 
-使用前须安装
+Axios 简单的理解就是 ajax 的封装
+
+### 安装 axios
+
+使用 npm:
 
 ````
 npm install axios
 ````
+
+### 使用 axios
 
 为使用 axios ，需先引入 axios
 
@@ -75,7 +77,7 @@ import axios from "axios"
 **GET 基础用例**
 
 ````JavaScript
-axios.get('url')
+axios.get(url)
     .then(res => {
         //代码片段
     })
@@ -87,7 +89,7 @@ axios.get('url')
 **POST 基础用例**
 
 ````JavaScript
-axios.post('url', {
+axios.post(url, {
     firstName: 'Fred',
     lastName: 'Flintstone'
 })
@@ -101,7 +103,143 @@ axios.post('url', {
 
 与 Promise 类似， `.then` 用于处理请求成功后的操作， `.catch` 用于处理请求失败后的操作
 
-**更多 axios 信息请点击[此处](https://www.axios-http.cn/docs/intro)**
+### 参数传递
+
+使用 get 请求传递参数时有两种传递方式:
+
+````JavaScript
+axios.get('url?id=1').then(res => {
+  console.log(res)
+})
+````
+
+````JavaScript
+axios.get(url,{params:{id:1}}).then(res => {
+  console.log(res)
+})
+````
+
+使用 post 请求传递参数时则是以下方式:
+
+````JavaScript
+axios.get('post',"id=1").then(res => {
+  console.log(res)
+})
+````
+
+### 并发请求
+
+使用 axios 的并发请求`axios.all()`方法可以同时进行多个网络请求。
+
+````JavaScript
+axios.all([
+    axios.get(url1),
+    axios.get(url2),
+    axios.get(url3),
+]).then(res => {
+    console.log(res)
+}).catch(err => {
+    console.log(err)
+})
+````
+
+其中 res 与 err 的值均为数组，分别代表每一个请求的结果。
+
+若想分别处理单个请求的结果，也可以使用`spread()`方法：
+
+````JavaScript
+axios.all([
+    axios.get(url1),
+    axios.get(url2),
+    axios.get(url3),
+]).then(
+    axios.spread((res1, res2, res3) => {
+        console.log(res1)
+        console.log(res2)
+        console.log(res3)
+    })
+)
+````
+
+### 全局配置方案
+
+为 axios 进行全局配置可以提高代码复用性
+
+````JavaScript
+axios.defaults.baseURL = url
+    axios.defaults.timeout = 5000
+    axios.get('link?id=1').then(res => { })
+    axios.post('link/add', 'id=1').then(res => { })
+````
+
+### 实例封装
+
+当需要进行多个请求并且超时时长不一样时，可以用到 axios 示例进行配置。
+
+````JavaScript
+let work = axios.create({
+    baseURL: url1,
+    timeout: 5000
+})
+work.get('link?id=1').then(res => { })
+````
+
+**axios 实例的相关配置(config 参数)**
+
+|参数|信息|
+|:--:|:--:|
+|baseURL|请求的域名基本地址|
+|timeout|后端定义的超时时长|
+|url|请求的路径|临
+|method|请求方法|
+|headers|设置请求头|
+|params|请求的参数拼接在 url 中|
+|data|请求的参数放在 request body 中|
+
+::: tip 提示
+假如新建了一个 axios 实例但是没有参数，取的就是全局的配置值，实例中如果有则优先取实例中的
+:::
+
+### 拦截器
+
+请求拦截器能为每个请求都带上参数，比如 token ，时间戳等
+
+````JavaScript
+let work = axios.create({
+    baseURL: url1,
+    timeout: 5000
+})
+work.interceptors.request.use(
+config => {
+    //每次发送请求之前判读是否存在 token
+    //如果存在，则统一在 http 请求的 header 都加上 token ，这样后台根据 token 判断你的登录情况
+    //即使本地存在 token ，也有可能 token 是过期的，所以在响应拦截器中要对返回状态进行判断
+    const token = window.localStorage.getItem("token")
+    token && (config.headers.Authorization = token)
+    return config
+},
+error => {
+    return Promise.error(error)
+})
+````
+
+响应拦截器能对返回的状态进行判断，比如 token 是否过期
+
+````JavaScript
+work.interceptors.response.use(config => {
+  //如果返回的状态码为200，说明接口请求成功，可以正常拿到数据
+  //否则的话抛出错误
+  if (config.status === 200) {
+      return Promise.resolve(config)
+  } else {
+      return Promise.reject(config)
+  }
+}, error => {
+  if(error.response.status){
+    return Promise.reject(error.response)
+  }
+})
+````
 
 ## 状态码
 
