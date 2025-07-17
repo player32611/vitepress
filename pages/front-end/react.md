@@ -10,12 +10,36 @@
 
 ## 什么是 React
 
+React 是用于构建 Web 和原生交互界面的库。
+
+React 让你可以通过组件来构建用户界面。你可以创建像 Thumbnail、LikeButton 和 Video 这样的组件。然后将它们组合成整个应用程序。
+
 ## 搭建开发环境
 
 **执行命令：**
 
 ````
 npx create-react-app react-basic
+````
+
+当前(2025-7-16)官方更支持以下几种创建 React 应用的方式:
+
+**Next.js**
+
+````
+npx create-next-app@latest
+````
+
+**React Router (v7)**
+
+````
+npx create-react-router@latest
+````
+
+**Expo**
+
+````
+npx create-expo-app@latest
 ````
 
 ## React 组件
@@ -59,6 +83,22 @@ export default function Profile() {
 }
 ````
 
+从 React 19 开始，你现在可以在函数组件中将 ref 作为 prop 进行访问：
+
+````JavaScript
+function Children1({placeholder, ref}) {
+  return <input placeholder={placeholder} ref={ref} />
+}
+````
+
+在其它组件中，可以通过 `useRef` 获取到绑定了 ref 的DOM元素
+
+````JavaScript
+const sonRef = useRef(null)
+//...
+<Children1 ref={sonRef} />
+````
+
 ### 使用组件
 
 可以向正常使用 HTML 标签一样使用组件。
@@ -71,6 +111,54 @@ export default function Profile() {
     <Profile />
 </section>
 ````
+
+对于跨文件使用组件，则需先导入。以下两个文件在同一目录下:
+
+::: code-group
+
+````JavaScript [App.js]
+import { useState } from "react";
+import Children1 from './Children1.js'
+
+function App() {
+  const [num, setNum] = useState(0)
+  function click(num) {
+    setNum(num)
+  }
+  return (
+    <div className="App">
+      <div>{num}</div>
+      <div><button onClick={() => click(1)}>1</button></div>
+      <div><button onClick={() => click(2)}>2</button></div>
+      <Children1 />
+    </div>
+  );
+}
+
+export default App;
+````
+
+````JavaScript [Children1.js]
+import { useState } from "react";
+
+function Children1() {
+    const [msg, setMsg] = useState("msg")
+    function click(msg) {
+        setMsg(msg)
+    }
+    return (
+        <div className="Children1">
+            <div>{msg}</div>
+            <div><button onClick={() => click("message1")}>1</button></div>
+            <div><button onClick={() => click("message2")}>2</button></div>
+        </div>
+    );
+}
+
+export default Children1;
+````
+
+:::
 
 ### 组件样式控制
 
@@ -117,6 +205,32 @@ function App () {
 ````JavaScript
 const [index, setIndex] = useState(0);
 const [showMore, setShowMore] = useState(false);
+````
+
+### 使用状态变量
+
+我们在 JSX 中使用状态变量时，将状态变量用 { } 包含起来
+
+调用函数时，则传入一个函数引用
+
+````JavaScript
+import { useState } from "react";
+
+function App() {
+  const [num, setNum] = useState(0)
+  function click(num) {
+    setNum(num)
+  }
+  return (
+    <div className="App">
+      <div>{num}</div>
+      <div><button onClick={() => click(1)}>1</button></div>
+      <div><button onClick={() => click(2)}>2</button></div>
+    </div>
+  );
+}
+
+export default App;
 ````
 
 ### 修改状态的规则
@@ -298,6 +412,127 @@ addToNum (state, action) {
 
 :::
 
+## Zustand 集中状态管理
+
+Zustand 是基于 Flux 模型实现的小型、快速和可扩展的状态管理解决方案，拥有基于 hooks 的舒适的API，非常地灵活且有趣。
+
+### 安装 Zustand
+
+````
+npm install zustand
+````
+
+### 创建 store
+
+创建的 store 是一个 hook，你可以放任何东西到里面：基础变量，对象、函数，状态必须不可改变地更新，set 函数合并状态以实现状态更新。
+
+````JavaScript
+//countStore.js
+import { create } from 'zustand'
+
+const useCountStore = create((set) => {
+    return {
+        count: 0,//状态数据
+        inc: () => {
+            set((state) => ({
+                count: state.count + 1
+            }))
+        }//修改状态数据的方法
+    }
+})
+
+export default useCountStore//导出 store
+````
+
+::: tip 提示
+
+函数参数必须返回一个对象，对象内部编写状态数据和方法
+
+set() 是用来修改数据的专门方法，必须调用它来修改数据
+
+:::
+
+### 绑定 store 到组件
+
+可以在任何地方使用钩子，不需要提供 provider。基于 selector 获取您的目标状态，组件将在状态更改时重新渲染。
+
+````JavaScript
+import useCountStore from "./store/countStore"
+
+function Children1() {
+    const { count, inc } = useCountStore()
+    return (
+        <div>
+            <div>{count}</div>
+            <div><button onClick={inc}>+</button></div>
+        </div>
+    );
+}
+
+export default Children1;
+````
+
+### 异步支持
+
+对于异步的支持不需要特殊的操作，直接在函数中编写异步逻辑，最后只需要调用 `set()` 方法传入新状态即可
+
+````JavaScript
+const useStore = create((set)=>{
+    return{
+        channelList:[],
+        fetchChannelList:async()=>{
+            const res = await fetch(url)
+            const jsonData = await res.json()
+            set({
+                channelList: jsonData.data.channels
+            })
+        }
+    }
+})
+````
+
+### 切片模式
+
+当单个 store 比较大的时候，可以采用切片模式进行模块拆分组合，类似于模块化
+
+```JavaScript
+import { create } from 'zustand'
+
+const createCountStore = create((set) => {
+    return {
+        count: 0,
+        inc: () => {
+            set((state) => ({
+                count: state.count + 1
+            }))
+        }
+    }
+})
+
+const createChannelStore = create((set) => {
+    return {
+        channelList:[],
+        fetchChannelList:async()=>{
+            const res = await fetch(url)
+            const jsonData = await res.json()
+            set({
+                channelList: jsonData.data.channels
+            })
+        }
+    }
+})
+
+const useStore = create((...a)=>{
+    return{
+        ...createCountStore(...a)
+        ...createChannelStore(...a)
+    }
+})
+````
+
+此时便可直接通过调用 useStore 来使用 count 和 channelList 。
+
+
 ## ReactRouter 路由
 
 ### 创建路由开发环境
@@ -463,6 +698,170 @@ export default NotFound
     element: <NotFound />
 }
 ````
+
+## ref 引用值
+
+当你希望组件“记住”某些信息，但又不想让这些信息 触发新的渲染 时，你可以使用 ref 。
+
+在你的组件内，调用 `useRef` Hook 并传入你想要引用的初始值作为唯一参数。
+
+````JavaScript
+const ref = useRef(0);
+````
+
+useRef 返回一个这样的对象:
+
+````JavaScript
+{ 
+  current: 0 // 你向 useRef 传入的值
+}
+````
+
+你可以用 ref.current 属性访问该 ref 的当前值。这个值是有意被设置为可变的，意味着你既可以读取它也可以写入它。但组件不会在每次变化时重新渲染。
+
+## React 内置 Hook
+
+Hook 可以帮助在组件中使用不同的 React 功能。你可以使用内置的 Hook 或使用自定义 Hook。
+
+### useReducer
+
+和`useState()`的作用类似，用来管理相对复杂的状态数据
+
+**基础用法**
+
+1、定义一个 reducer 函数(根据不同的 action 返回不同的新状态)
+
+````JavaScript
+function reducer(state, action) {
+  switch (action.type) {
+    case 'INC':
+      return state + 1
+    case 'DEC':
+      return state - 1
+    default:
+      return state
+  }
+}
+````
+
+2、在组件中调用 useReducer ，并传入 reducer 函数和状态的初始值
+
+````JavaScript
+function App() {
+  const [state, dispatch] = useReducer(reducer, 0)
+  //...
+}
+````
+
+3、事件发生时，通过 dispatch 函数分派一个 action 对象(通知 reducer 要返回那个新状态并渲染 UI)
+
+````JavaScript
+function App() {
+  const [state, dispatch] = useReducer(reducer, 0)
+  //...
+  return (
+    <div className="App">
+        {/* //... */}
+        <div>{state}</div>
+        <div><button onClick={() => dispatch({ type: 'INC' })}>INC</button></div>
+        <div><button onClick={() => dispatch({ type: 'DEC' })}>DEC</button></div>
+    </div >
+  );
+}
+````
+
+`state` : 状态
+
+`dispatch` : 修改状态的方法
+
+dispatch 除了可以传递状态 type ，还可以传递参数:
+
+````JavaScript
+function App() {
+  const [state, dispatch] = useReducer(reducer, 0)
+  //...
+  return (
+    <div className="App">
+        {/* //... */}
+        <div>{state}</div>
+        <div><button onClick={() => dispatch({ type: 'INC' })}>INC</button></div>
+        <div><button onClick={() => dispatch({ type: 'DEC' })}>DEC</button></div>
+        <div><button onClick={() => dispatch({ type: 'SET', payload: 100 })}>SET</button></div>
+        <Children1 />
+    </div >
+  );
+}
+````
+
+### useMemo
+
+作用：在组件每次重新渲染的时候缓存计算的结果，用于提高性能
+
+````JavaScript
+const result = useMemo(()=>{
+    return add(count1)
+},[count1])
+````
+
+使用 useMemo 做缓存之后可以保证只有依赖项发生变化时才会重新计算
+
+### React.memo
+
+作用：允许组件在 props 没有改变的情况下跳过渲染
+
+````JavaScript
+const MemoComponent = memo(function Children1(props)){
+    //...
+}
+````
+
+经过 memo 函数包裹生成的缓存组件只有在 props 发生变化的时候才会重新渲染
+
+### useCallback
+
+作用：在组件多次重新渲染的时候缓存函数
+
+````JavaScript
+const changeHandler = useCallback((value) => console.log(value),[])
+````
+
+使用 useCallback 包裹函数之后，函数可以保证在 App 重新渲染的时候保持引用稳定
+
+### useInperativeHandlle
+
+作用：让父组件访问子组件中的方法
+
+::: code-group
+
+````JavaScript [Children1.js]
+function click() {
+    //...
+}
+useImperativeHandle(ref, () => {
+    return {
+        click
+    }
+})
+return (
+    <div className="Children1"></div>
+);
+````
+
+````JavaScript [App.js]
+function App() {
+  const sonRef = useRef(null)
+  //...
+  return (
+    <div className="App">
+      <Children1 ref={sonRef} />
+    </div >
+  );
+}
+````
+
+:::
+
+此时 sonRef 中就可以访问 `click()`方法
 
 ## 更多信息
 
