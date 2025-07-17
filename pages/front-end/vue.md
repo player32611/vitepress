@@ -1810,6 +1810,43 @@ export default{
 </script>
 ````
 
+与`defineExpose()`结合使用可以传递DOM元素给父组件。以下代码中的`childDom.value.childDom`就代表了子组件中的 div 。
+
+::: code-group
+
+````vue [Children1.vue]
+<script setup>
+import { ref } from 'vue';
+const childDom = ref(null)
+defineExpose({childDom})
+</script>
+
+<template>
+<div class="children1">
+  <div ref="childDom">count: {{ data.count }}</div>
+</div>
+</template>
+````
+
+````vue [App.vue]
+<script setup>
+import children1 from '@/components/children1.vue'
+import { ref } from 'vue';
+function show(){
+  console.log(childDom.value.childDom)
+}
+const childDom = ref(null)
+</script>
+
+<template>
+<children1 ref="childDom"></children1>
+</template>
+
+````
+
+:::
+
+
 `reactive()` : 返回一个对象的响应式代理
 
 ````vue
