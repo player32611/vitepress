@@ -1,9 +1,5 @@
 # webpack
 
-::: danger 警告
-该页面尚未完工!
-:::
-
 ## 目录
 
 [[toc]]
@@ -336,9 +332,111 @@ plugins: [
 ],
 ````
 
+## 打包图片资源
 
+### 打包 css 中使用的图片?
 
-## webpack 打包图片
+需下载 url-loader 和 file-loader 两个包
+
+````
+npm i url-loader file-loader -D
+````
+
+并在 webpack 配置文件中进行设置
+
+````JavaScript
+module: {
+  rules: [
+    //...
+    {
+      test: /\.(png|jpg|jpeg|gif)$/,//设置打包的图片格式
+      loader: 'url-loader',
+      options: {
+        publicPath: './images/',
+        outputPath: 'images/',//设置打包后的图片的存放目录
+        limit: 1024 * 8,//用于限制图片大小
+        name: '[name][hash:10].[ext]'//设置打包后的图片的名字
+      }
+    }
+  ]
+},
+````
+
+### 打包 html 中使用的图片?
+
+需下载 html-loader
+
+````
+npm install html-loader -D 
+````
+
+并在 webpack 配置文件中进行设置
+
+````JavaScript
+module: {
+  rules: [
+    {
+      test: /\.html$/,
+      loader: 'html-loader',
+    }
+  ]
+},
+````
+
+## 打包其它资源字体图标
+
+不需要优化和压缩处理，直接输出的资源，称为其它资源。
+
+````JavaScript
+module: {
+  rules: [
+    {
+      exclude: /\.(js|json|html|css|less|scss|png|gif|jpg|jpeg)$/,//排除不需要使用此方式打包的资源
+      loader: 'file-loader',
+      options: {
+        outputPath: 'font/',
+        publicPath: './font',
+        name: '[name][hash:8].[ext]'
+      }
+    }
+  ]
+},
+````
+
+## 去除项目里的死代码
+
+### 去除没有用到的 js 代码
+
+webpack 通过 tree-shaking 去掉了实际上并没有使用的 js 代码来减少包的大小
+
+webpack 本身就支持，不需要另外配置
+
+条件：必须使用 es6 模块化；开启 production 环境
+
+### 去除没有用到的 css
+
+webpack 使用 purgecss-webpack-plugin 去除无用的 css
+
+````
+npm i purgecss-webpack-plugin -D
+````
+
+在 webpack 配置文件中进行以下配置：
+
+````JavaScript
+const { resolve, join } = require('path')
+const { glob } = require('glob')
+const { PurgeCSSPlugin } = require('purgecss-webpack-plugin')
+const PATHS = { src: join(__dirname, 'src') }
+//...
+
+//...
+plugins: [
+  new PurgeCSSPlugin({
+    paths: glob.sync(`${PATHS.src}/**/*`, { nodir: true })
+  })
+],
+````
 
 ## 更多信息
 
