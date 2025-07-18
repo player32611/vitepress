@@ -560,6 +560,38 @@ Grid 布局由一个父元素以及一个或多个子元素组成。当 HTML 元
 }
 ````
 
+## sass
+
+### 什么是 sass
+
+Sass 是一款强化 CSS 的辅助工具，它在 CSS 语法的基础上增加了变量 (variables)、嵌套 (nested rules)、混合 (mixins)、导入 (inline imports) 等高级功能，这些拓展令 CSS 更加强大与优雅。使用 Sass 以及 Sass 的样式库（如 Compass）有助于更好地组织管理样式文件，以及更高效地开发项目。
+
+### 安装 sass
+
+使用 npm :
+
+````
+npm install -D sass-embedded
+````
+
+### sass 对 css 的功能扩展
+
+点击[此处](https://www.sass.hk/docs/index.html)
+
+## less 
+
+### 安装 less
+
+使用 npm :
+
+````
+npm install less -D
+````
+
+### less 对 css 的功能扩展
+
+点击[此处](https://less.bootcss.com/#%E6%A6%82%E8%A7%88)
+
 ## 更多信息
 
 更多信息请点击[此处](https://www.w3school.com.cn/cssref/index.asp).
