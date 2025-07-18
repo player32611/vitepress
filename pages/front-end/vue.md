@@ -1193,7 +1193,7 @@ app.mount('#app')
 </template>
 ````
 
-**自定义 RouterLink **
+**自定义 RouterLink**
 
 使用全局属性 `$router` 进行主动页面跳转
 
