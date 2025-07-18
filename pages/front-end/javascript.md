@@ -276,6 +276,10 @@ var person = {firstName:"Bill", lastName:"Gates", age:62, eyeColor:"blue"};
 delete person.age;   // 或 delete person["age"];
 ````
 
+## TypeScript
+
+点击[此处](https://typescript.p6p.net/typescript-tutorial/intro.html)
+
 ## 更多信息
 
 更多信息请点击[此处](https://www.w3school.com.cn/js/index.asp).
