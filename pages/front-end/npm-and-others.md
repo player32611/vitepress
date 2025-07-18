@@ -187,7 +187,3 @@ Promise.all([
 ````
 
 其中 res 的值为一个数组，其值分别代表不同 Promise 的 `resolve` 传递值
-
-## TypeScript
-
-点击[此处](https://typescript.p6p.net/typescript-tutorial/intro.html)
