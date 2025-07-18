@@ -536,48 +536,75 @@ const useStore = create((...a)=>{
 对 React 项目安装 ReactRouter :
 
 ````
-npm i react-router-dom
+npm i react-router
+````
+
+或者在创建时直接采用含有 reeact-router 的框架:
+
+````
+npx create-react-router@latest
 ````
 
 ### 抽象路由模块
 
 ::: code-group
 
-```JavaScript [page/Login.js]
-//路由级别组件
-const Login = () =>{
-    return <div>我是登录页</div>
-}
-export default Login
-```
+````JavaScript [App.js]
+function App() {
+  return (
+    <div className="App">
+      App
+    </div >
+  );
+}//页面级组件
 
-```JavaScript [router.js]
-//引入组件配置
-import Login from '../page/Login'
+export default App;
+````
 
-const { creatBrowserRouter } from 'react-router-dom'
+````JavaScript [router.js]
+import App from '../App'//引入你需要的页面级组件配置
+
+import { createBrowserRouter } from "react-router"
 
 const router = createrBrowserRouter([
     {
-        path: '/login',
-        element: <Login />
+        path: '/',
+        element: <App />
     }
 ])
 
-export default router
-```
+export default router//导出路由配置
+````
 
-```JavaScript [index.js]
+````JavaScript [index.js]
 //应用入口文件渲染
-import { RouterProvider } from 'react-router-dom'
-import router from './router'
-const root = ReactDom.createRoot(document.getElementById('root'));
-root.render(
-    <RouterProvider router={router}></RouterProvider>
-)
-```
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import router from './router/router';
+import { RouterProvider } from 'react-router';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<RouterProvider router={router} />);
+````
 
 :::
+
+路由配置也可以采用以下写法:
+
+````JavaScript
+import App from '../App'//引入你需要的页面级组件配置
+
+import { createBrowserRouter } from "react-router"
+
+const router = createrBrowserRouter([
+    {
+        path: '/',
+        Component: App
+    }
+])
+
+export default router//导出路由配置
+````
 
 ### 路由导航
 
