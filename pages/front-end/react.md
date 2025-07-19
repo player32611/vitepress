@@ -190,6 +190,58 @@ function App () {
 
 :::
 
+### 组件父传子通信
+
+当需要进行父子组件间通信时，子组件通过 props 参数接收数据
+
+````JavaScript
+function Son(props){
+    //...
+}
+````
+
+父组件在使用子组件时，需传入数据名与数据值
+
+````JavaScript
+function App(){
+    //...
+    return(
+        <Son name={name} />
+    )
+}
+````
+
+当父组件把内容嵌套在子组件标签中时，父组件会自动在名为 children 的 prop 属性中接收该内容
+
+````JavaScript
+//...
+<Son><span>this is span</span></Son>
+````
+
+### 组件子传父通信
+
+子组件需要传递数据给父组件时，需要调用父组件传过来的函数
+
+````JavaScript
+function Son({onGetMsg}){
+    const sonMsg = "this is son msg"
+    return(
+        <div>
+            <button onClick={()=>onGetMsg(sonMsg)}>send</button>
+        </div>
+    )
+}
+
+function App(){
+    const getMsg = (msg) => console.log(msg)
+    return(
+        <div>
+            <Son onGetMsg={getMsg} />
+        </div>
+    )
+}
+````
+
 ## State 状态管理
 
 在 React 中，随时间变化的数据被称为状态（state）。你可以向任何组件添加状态，并按需进行更新。
@@ -491,7 +543,7 @@ const useStore = create((set)=>{
 
 当单个 store 比较大的时候，可以采用切片模式进行模块拆分组合，类似于模块化
 
-```JavaScript
+````JavaScript
 import { create } from 'zustand'
 
 const createCountStore = create((set) => {
@@ -614,7 +666,7 @@ export default router//导出路由配置
 
 ````JavaScript
 import {Link} from 'react-router-dom'
-...
+//...
 <Link to="/article">文章</Link>
 ````
 
@@ -636,6 +688,49 @@ const Login = () => {
 ````
 
 通过调用navigate方法传入地址path实现跳转
+
+### 路由间传参
+
+通过导航路由传参有两种方式: searchParams 传参和 params 传参
+
+**searchParams 传参**
+
+在源路由中调用`navigate()`方法时在目标路由后添加参数与参数值，用`?`将路由名与参数隔开，用`&`将参数隔开
+
+````JavaScript
+navigate('/article?id=1001&name=jack')
+````
+
+在目标路由中使用`useSearchParams()`接收参数
+
+````JavaScript
+const [params] = useSearchParams
+let id = params.get('id')
+````
+
+**params 传参**
+
+在路由配置文件中提前设置需要传递的参数名，参数名前需添加`:`
+
+````JavaScript
+{
+    path: '/article/:id/:name'
+    element: <Article />
+}
+````
+
+在源路由中调用`navigate()`方法时在目标路由后添加参数与参数值，用`/`分割路由名与参数
+
+````JavaScript
+navigate('/article/1001')
+````
+
+最后在目标路由中使用`useParams`方法接收参数
+
+````JavaScript
+const params = useParams()
+let id = params.id
+````
 
 ### 嵌套路由配置
 
@@ -740,7 +835,7 @@ useRef 返回一个这样的对象:
 }
 ````
 
-你可以用 ref.current 属性访问该 ref 的当前值。这个值是有意被设置为可变的，意味着你既可以读取它也可以写入它。但组件不会在每次变化时重新渲染。
+你可以用 ref.current 属性访问该 ref 的当前值。这个值是有意被设置为可变的，意味着你既可以读取它也可以写入它。但组件不会在每次变化时重新渲染，而是在其它数据触发渲染时进行重新渲染。
 
 ## React 内置 Hook
 
