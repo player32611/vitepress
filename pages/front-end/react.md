@@ -1010,6 +1010,34 @@ useEffect(() => {
 },[])
 ````
 
+### useContext
+
+`useContext`与`createContext`联合使用可以实现跨层传递数据
+
+先使用`createContext`方法创建一个上下文对象
+
+````JavaScript
+const MsgContext = createContext()
+````
+
+再在顶层组件通过 Provider 组件提供数据
+
+````JavaScript
+//...
+return (
+    <MsgContext.Provider calue={msg}>
+    {/* //... */}
+    </MsgContext.Provider>
+)
+````
+
+最后在底层组件中使用`useContext`钩子函数接收数据
+
+````JavaScript
+//...
+const msg = useContext(JavaScript)
+````
+
 ## 更多信息
 
 更多信息请点击[此处](https://zh-hans.react.dev/learn)
