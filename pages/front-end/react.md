@@ -1038,6 +1038,212 @@ return (
 const msg = useContext(JavaScript)
 ````
 
+## 封装 axios 网络请求
+
+### 封装 axios 实例
+
+在项目中封装 axios 实例可以提高代码的复用性
+
+````TypeScript
+// src/utils/http.ts
+import axios from "axios";
+
+const httpInstance = axios.create({
+    baseURL: url,//基础地址
+    timeout: 5000,//超时时间
+})
+
+//拦截器
+httpInstance.interceptors.request.use(
+    (config) => {
+        return config
+    },
+    (error) => {
+        return Promise.reject(error)
+    }
+)
+
+httpInstance.interceptors.response.use(
+    (response) => {
+        return response
+    },
+    (error) => {
+        return Promise.reject(error)
+    }
+)
+
+export { httpInstance }
+````
+
+### 实例中转
+
+当一个项目中需要有不同请求基础地址时，可以将他们统一封装到一个文件中进行使用
+
+````TypeScript
+// src/utils/index.ts
+import { httpInstance } from "./http";//一个请求基础地址
+
+export { httpInstance as http }//统一导出
+````
+
+### 详细请求
+
+对于已有的请求基础地址，我们会对其下不同数据的请求进行封装
+
+````TypeScript
+import { http } from '../utils'//导入请求基础地址
+
+
+type ResType<T> = {
+    data: T
+}//统一返回的数据类型
+
+export type Test1Type = {
+    id: number
+    name: string
+}//求该数据所返回的类型
+
+type Test1Params = {
+    id: number
+}//请求该数据所需要的参数
+
+export function getTest1Data(params: Test1Params) {
+    return http.request<ResType<Test1Type>>({
+        url: '/category',
+        params,
+    })
+}//请求
+````
+
+### 使用封装后的 axios
+
+想要使用封装后的请求，只需导入对应的文件并传递参数即可
+
+````TypeScript
+import { getTest1Data } from './apis/Test1'
+
+getTest1Data({ id: 1 }).then((res) => {
+    console.log(res.data.data)
+})
+````
+
+### 渲染数据
+
+渲染数据的本质是在页面初始加载的时候进行请求获取数据，成功获取数据后传入 state 中并触发渲染逻辑
+
+````TypeScript
+import { useEffect, useState } from 'react'
+import { getTest1Data } from '../../../apis/Test1'
+import type { Test1Type } from '../../../apis/Test1'
+
+const Tab3 = () => {
+    const [Test1Data, setTest1Data] = useState<Test1Type>({
+        id: 0,
+        name: ''
+    })//设置初始 state 数据
+    useEffect(() => {
+        const getData = async () => {
+            try {
+                const res = await getTest1Data({ id: 1 })//获取数据后赋值
+                setTest1Data({ id: res.data.data.id, name: res.data.data.name })//更改 state 数据，触发渲染逻辑
+            } catch (error) {
+                throw new Error('获取失败')
+            }
+        }
+        getData()
+    }, [])//仅在页面初始加载时发起请求
+    return (
+        <>
+            <div>Test1Data.id: {Test1Data.id}</div>
+            <div>Test1Data.name: {Test1Data.name}</div>
+        </>
+    )
+}
+
+export default Tab3;
+````
+
+## TypeScript 使用调整
+
+::: tip 提示
+每个包含 JSX 的文件都必须使用`.tsx`文件扩展名。这是一个 TypeScript 特定的扩展，告诉 TypeScript 该文件包含 JSX。
+:::
+
+### TypeScript 对组件的调整
+
+在为组件提供传递的参数时，需要使用 interface 或 type 来对组件的参数类型进行描述：
+
+````TypeScript
+interface MyButtonProps {
+  title: string;
+  disabled: boolean;
+}
+
+function MyButton({ title, disabled }: MyButtonProps) {
+  return (
+    <button disabled={disabled}>{title}</button>
+  );
+}
+````
+
+### TypeScript 对 Hook 的调整
+
+**useState**
+
+对于常规数据，你需要为 state 显式提供一个类型
+
+````TypeScript
+// 显式设置类型为 "boolean"
+const [enabled, setEnabled] = useState<boolean>(false)
+````
+
+当你有一个联合类型时，你可能需要提供一个 type
+
+````TypeScript
+type Status = "idle" | "loading" | "success" | "error";
+const [status, setStatus] = useState<Status>("idle");
+````
+
+**useReducer**
+
+你可以选择性地为`useReducer`提供类型参数以为 state 提供类型。但是更好的做法仍然是在初始 state 上添加类型
+
+````TypeScript
+import {useReducer} from 'react';
+
+interface State {
+   count: number 
+};
+
+type CounterAction =
+  | { type: "reset" }
+  | { type: "setCount"; value: State["count"] }
+
+const initialState: State = { count: 0 };
+
+function stateReducer(state: State, action: CounterAction): State {
+  switch (action.type) {
+    case "reset":
+      return initialState;
+    case "setCount":
+      return { ...state, count: action.value };
+    default:
+      throw new Error("Unknown action");
+  }
+}
+
+const [state, dispatch] = useReducer(stateReducer, initialState);
+````
+
+**useMemo**
+
+函数的类型是根据第一个参数中函数的返回值进行推断的，如果希望明确指定，可以为该 Hook 提供一个类型参数以指定函数类型。
+
+````TypeScript
+// 从 filterTodos 的返回值推断 visibleTodos 的类型
+const visibleTodos = useMemo(() => filterTodos(todos, tab), [todos, tab])
+````
+
 ## 更多信息
 
 更多信息请点击[此处](https://zh-hans.react.dev/learn)
