@@ -241,6 +241,24 @@ work.interceptors.response.use(config => {
 })
 ````
 
+## token
+
+### 获取 token
+
+````JavaScript
+const token = localStorage.getItem('token')//获取 token
+if(!token){
+  location.href = 'url'//如果没有 token ，则返回到指定地址
+}
+````
+
+当登录成功后，获取并保存 token
+
+````JavaScript
+localStorage.setItem('token',token)//将 token 保存在浏览器
+location.href = 'url'//登录成功后跳转
+````
+
 ## 状态码
 
 HTTP 状态码用来表示特定的 HTTP 请求是否已成功完成。响应分为五类：信息响应(100–199)，成功响应(200–299)，重定向(300–399)，客户端错误(400–499)和服务器错误 (500–599)。
