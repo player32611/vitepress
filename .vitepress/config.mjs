@@ -33,7 +33,8 @@ export default defineConfig({
           { text: '网络请求', link: '/pages/front-end/network-requests' },
           { text: 'webpack', link: '/pages/front-end/webpack' },
           { text: 'React', link: '/pages/front-end/react' },
-          { text: 'Vue', link: '/pages/front-end/vue' }
+          { text: 'Vue', link: '/pages/front-end/vue' },
+          { text: '微信小程序', link: '/pages/front-end/WeChatMiniProgram' },
         ]
       },
       {
@@ -74,5 +75,5 @@ export default defineConfig({
         },
       },
     },
-  }
+  },
 })
