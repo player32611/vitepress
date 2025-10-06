@@ -240,3 +240,113 @@ sitemap 的索引提示默认是开启的，如需要关闭 sitemap 的索引提
 滚动区域高度(宽度)必须设置，否则滚动效果无效
 
 :::
+
+### swiper 和 swiper-item 组件的基本使用
+
+`swiper`中放置`swiper-item`标签，`swiper-item`标签内为轮播图内容
+
+```html
+<swiper class="swiper1">
+  <swiper-item>
+    <view class="swiper1-item">A</view>
+  </swiper-item>
+  <swiper-item>
+    <view class="swiper1-item">B</view>
+  </swiper-item>
+  <swiper-item>
+    <view class="swiper1-item">C</view>
+  </swiper-item>
+</swiper>
+```
+
+swiper 轮播图组件的常用属性如下：
+
+|          属性          |  类型   |      默认值       |         说明         |
+| :--------------------: | :-----: | :---------------: | :------------------: |
+|     indicator-dots     | boolean |       false       |  是否显示面板指示点  |
+|    indicator-color     |  color  | rgba(0, 0, 0, .3) |      指示点颜色      |
+| indicator-active-color |  color  |      #000000      | 当前选中的指示点颜色 |
+|        autoplay        | boolean |       false       |     是否自动切换     |
+|        interval        | number  |       5000        |   自动切换时间间隔   |
+|        circular        | boolean |       false       |   是否采用衔接滑动   |
+
+## 常用的基础内容组件
+
+`text`: 文本组件，类似于 HTML 中的`span`标签，是一个行内元素
+
+`rich-text`: 富文本组件，支持把 HTML 字符串渲染为 WXML 结构
+
+### text 组件的基本使用
+
+通过`text`组件的 **selectable** 属性，实现长按选中文本的效果
+
+```html
+<text selectable>长按选中文本</text>
+```
+
+### rich-text 组件的基本使用
+
+通过`rich-text`组件的 **nodes** 属性节点，把 HTML 字符串渲染为对应的 UI 结构
+
+```html
+<rich-text nodes="<h1 style='color:red'>标题</h1>" />
+```
+
+## 其它常用组件
+
+`button`: 按钮组件，功能比 HTML 中的`button`标签丰富，通过 **open-type** 属性，可以调用微信提供的各种功能(客服、转发、获取用户授权、获取用户信息等)
+
+`image`: 图片组件，默认宽度约为 300px、高度约为 240px
+
+`navigatoe`: 页面导航组件、类似于 HTML 中的`a`链接
+
+### button 组件的基本使用
+
+通过 **type** 指定按钮类型，通过 **size** 设置尺寸，通过 **plain** 设置镂空
+
+```html
+<button type="default">按钮</button>
+<button type="primary">主色调按钮</button>
+<button type="warn">警告按钮</button>
+
+<button size="mini">行内按钮</button>
+<button size="default">块即按钮</button>
+
+<button plain>镂空按钮</button>
+```
+
+### image 组件的基本使用
+
+使用 **src** 指向图片路径
+
+```html
+<image src="https://img.alicdn.com/tfs/TB1.XbjQpXXXXX_XpXXXXXXXXXX-200-200.png/>
+```
+
+`image`组件的 **mode** 属性来指定图片的裁剪和缩放模式，常用的 **mode** 属性值如下：
+
+| **mode** 值 |                                                              说明                                                              |
+| :---------: | :----------------------------------------------------------------------------------------------------------------------------: |
+| scaleToFill |                         (默认值)缩放模式，不保持纵横比缩放图片，使图片的宽高完全拉伸至填满`image`元素                          |
+|  aspectFit  |                  缩放模式，保持纵横比缩放图片，使图片的长边能完全显示出来。也就是说，可以完整地将图片显示出来                  |
+| aspectFill  | 缩放模式，保持纵横比缩放图片，只保证图片的短边能完全显示。也就是说，图片通常只在水平或垂直方向是完整的，另一个方向将会发生截取 |
+|  widthFix   |                                      缩放模式，宽度不变，高度自动变化，保持图片宽高比不变                                      |
+|  heightFix  |                                      缩放模式，高度不变，宽度自动变化，保持图片宽高比不变                                      |
+
+```html
+<image mode="aspectFill" />
+```
+
+## 小程序 API
+
+### 小程序 API 概述
+
+小程序中的 API 是由宿主系统提供的，通过这些丰富的小程序 API，开发者可以方便的调用微信提供的能力，例如：获取用户信息、本地存储、支付功能等。
+
+### 小程序 API 的 3 大分类
+
+**事件监听 API**：以 **on** 开头的 API，用来监听某些事件的触发
+
+**同步 API**：以 **Sync** 结尾的 API，执行结果可以通过函数返回值直接获取，如果执行出错会抛出异常
+
+**异步 API**：类似于 jQuery 中的 **$.ajax(options)** 函数，需要通过 **success**、**fail**、**complete** 接收调用的结果
