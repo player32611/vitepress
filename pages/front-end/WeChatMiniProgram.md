@@ -60,39 +60,6 @@ https://developers.weixin.qq.com/miniprogram/dev/devtools/stable.html
 
 ## 基础知识
 
-### WXML 模板
-
-WXML(WeiXin Markup Language) 是一种小程序框架设计的一套标签语言，用来构建小程序页面的结构，其作用类似于网页开发中的 HTML。
-
-**WXML 和 HTML 的区别**：
-
-标签名称不同:
-
-| HTML |   WXML    |
-| :--: | :-------: |
-| div  |   view    |
-| span |   text    |
-| img  |   image   |
-|  a   | navigator |
-
-属性节点不同: HTML 中`<a href="#">超链接</a>`
-
-WXML 中`<navigator url="/pagea/home/home"></navigator>`
-
-提供了类似于 Vue 中的模板语法:包括数据绑定，列表渲染，条件渲染等
-
-### WXSS 样式
-
-WXSS(WeiXin Style Sheets) 是一套样式语言，用于描述 WXML 的组件样式，类似于网页开发中的 CSS。
-
-**WXSS 和 CSS 的区别**：
-
-新增了 rpx 尺寸单位：CSS 中需要手动进行像素单位换算，例如 rem;WXSS 在底层支持新的尺寸单位 rpx，在不同大小的屏幕上小程序会自动进行换算。
-
-提供了全局的样式和局部样式：项目根目录中的`app.wxss`会作用域所有小程序页面；局部页面的`.wxss`样式仅对当前页面生效。
-
-WXSS 仅支持部分 CSS 选择器：.class 和#id、element、并集选择器、后代选择器、::after 和::before 等伪类选择器。
-
 ### .js(.ts) 文件
 
 小程序中的 JS(TS) 文件分为三大类，分别是：
@@ -124,6 +91,36 @@ WXSS 仅支持部分 CSS 选择器：.class 和#id、element、并集选择器�
 **小程序启动**的过程分为五个步骤：把小程序的代码包下载到本地 -> 解析`app.json`全局配置文件 -> 执行`app.js`小程序入口文件，调用`App()`创建小程序实例 -> 渲染小程序首页 -> 小程序启动完成
 
 **页面渲染**的过程分为四个步骤：加载解析页面的`.json`配置文件 -> 加载页面的`.wxml`模板和`.wxss`样式 -> 执行页面的`.js`文件，调用`Page()`创建页面实例 -> 页面渲染完成
+
+## 基础操作
+
+### 新建小程序页面
+
+只需要在`app.json`->`pages`中新增页面的存放路径，小程序开发者工具即可帮我们自动创建对应的页面文件。
+
+```json
+{
+  "pages": [
+    "pages/index/index",
+    "pages/logs/logs",
+    "pages/list/list" //新增的页面路径
+  ]
+}
+```
+
+### 修改项目首页
+
+只需要调整`app.json`->`pages`数组中页面路径的前后顺序，即可修改项目的首页。小程序会把排在第一位的页面，当作项目首页进行渲染。
+
+```json
+{
+  "pages": [
+    "pages/list/list" //交换页面顺序
+    "pages/index/index",
+    "pages/logs/logs",
+  ]
+}
+```
 
 ## JSON 配置文件
 
@@ -165,41 +162,11 @@ sitemap 的索引提示默认是开启的，如需要关闭 sitemap 的索引提
 
 小程序中的每一个页面，可以使用`.json`文件来对本页面的窗口外观进行配置，**页面中的配置项会覆盖`app.json`的 window 中相同的配置项**。
 
-## 基础操作
-
-### 新建小程序页面
-
-只需要在`app.json`->`pages`中新增页面的存放路径，小程序开发者工具即可帮我们自动创建对应的页面文件。
-
-```json
-{
-  "pages": [
-    "pages/index/index",
-    "pages/logs/logs",
-    "pages/list/list" //新增的页面路径
-  ]
-}
-```
-
-### 修改项目首页
-
-只需要调整`app.json`->`pages`数组中页面路径的前后顺序，即可修改项目的首页。小程序会把排在第一位的页面，当作项目首页进行渲染。
-
-```json
-{
-  "pages": [
-    "pages/list/list" //交换页面顺序
-    "pages/index/index",
-    "pages/logs/logs",
-  ]
-}
-```
-
 ## 组件
 
 小程序中的组件是由宿主环境提供的，开发者可以基于组件快速搭建出漂亮的页面结构。官方把小程序的组件分为了 9 大类，分别是：**视图容器**、**基础内容**、**表单组件**、导航组件、媒体组件、map 地图组件、canvas 画布组件、开放能力与无障碍访问。
 
-## 常用的视图容器类组件
+常用的视图容器类组件包括`view`、`scroll-view`、`swiper`和`swiper-item`
 
 `view`: 普通视图区域，类似于 HTML 中的`div`，是一个块级元素，常用来实现页面的布局效果
 
@@ -270,7 +237,7 @@ swiper 轮播图组件的常用属性如下：
 |        interval        | number  |       5000        |   自动切换时间间隔   |
 |        circular        | boolean |       false       |   是否采用衔接滑动   |
 
-## 常用的基础内容组件
+常用的基础内容组件包括`text`和`rich-text`
 
 `text`: 文本组件，类似于 HTML 中的`span`标签，是一个行内元素
 
@@ -292,7 +259,7 @@ swiper 轮播图组件的常用属性如下：
 <rich-text nodes="<h1 style='color:red'>标题</h1>" />
 ```
 
-## 其它常用组件
+其它常用组件包括`button`、`image`和`navigate`
 
 `button`: 按钮组件，功能比 HTML 中的`button`标签丰富，通过 **open-type** 属性，可以调用微信提供的各种功能(客服、转发、获取用户授权、获取用户信息等)
 
@@ -336,6 +303,247 @@ swiper 轮播图组件的常用属性如下：
 ```html
 <image mode="aspectFill" />
 ```
+
+## WXML 模板语法
+
+WXML(WeiXin Markup Language) 是一种小程序框架设计的一套标签语言，用来构建小程序页面的结构，其作用类似于网页开发中的 HTML。
+
+**WXML 和 HTML 的区别**：
+
+标签名称不同:
+
+| HTML |   WXML    |
+| :--: | :-------: |
+| div  |   view    |
+| span |   text    |
+| img  |   image   |
+|  a   | navigator |
+
+属性节点不同: HTML 中`<a href="#">超链接</a>`
+
+WXML 中`<navigator url="/pagea/home/home"></navigator>`
+
+提供了类似于 Vue 中的模板语法:包括数据绑定，列表渲染，条件渲染等
+
+数据绑定的基本原则是：**在 data 中定义数据**、**在 WXML 中使用数据**
+
+### 定义数据
+
+在页面对应的`.js(.ts)`文件中，把数据定义到 **data** 对象中即可
+
+```javascript
+Page({
+  data: {
+    info: "init data",
+    msgList: [{ msg: "hello" }, { msg: "world" }],
+  },
+});
+```
+
+### 使用数据
+
+把 **data** 中的数据绑定到页面中渲染，使用 **Mustache** 语法(双大括号)将变量包起来即可。语法格式为：
+
+```html
+<view>{{ 要绑定的数据名称 }}</view>
+<image src="{{ 要绑定的数据名称 }}"></image>
+<view>{{ 要绑定的数据名称 ? 'true' : 'false' }}</view>
+<view>{{ 要绑定的数据名称 * 100 }}</view>
+```
+
+### 事件绑定
+
+事件是渲染层到逻辑层的通讯方式。通过事件可以将用户在渲染层产生的行为，反馈到逻辑层进行业务的处理。
+
+在小程序中，不存在 HTML 中的 **onclick** 鼠标点击事件，而是通过 **tap** 事件来响应用户的触摸行为。
+
+小程序中常用的事件有：
+
+|  类型  |         绑定方式          |                    事件描述                     |
+| :----: | :-----------------------: | :---------------------------------------------: |
+|  tap   |    bindtap 或 bind:tap    | 手指触摸后马上离开，类似于 HTML 中的 click 事件 |
+| input  |  bindinput 或 bind:input  |                文本框的输入事件                 |
+| change | bindchange 或 bind:change |                 状态改变时触发                  |
+
+::: code-group
+
+```html [index.wxml]
+<button bind:tap="btnTapHandler">按钮</button>
+```
+
+```javascript [index.js]
+btnTapHandler(e){//按钮的 tap 事件处理函数
+  console.log(e)//事件参数对象 e
+}
+```
+
+:::
+
+当事件回调触发的时候，会受到一个事件对象 **event** ，他的详细属性如下表所示：
+
+|      属性      |    类型    |                     说明                     |
+| :------------: | :--------: | :------------------------------------------: |
+|      type      |   String   |                   事件类型                   |
+|   timeStamp    |  Integer   |       页面打开到触发事件所经过的毫秒数       |
+|   **target**   | **Object** |      **触发事件的组件的一些属性值集合**      |
+| currentTarget  |   Object   |           当前组件的一些属性值集合           |
+|   **detail**   | **Object** |                **额外的信息**                |
+|    touches     |   Array    | 触摸事件，当前停留在屏幕中的触摸点信息的数组 |
+| changedTouches |   Array    |     触摸事件，当前变化的触摸点信息的数组     |
+
+::: tip 提示
+
+**target** 是触发该事件的源头组件，而 **currentTarget** 则是当前事件所绑定的组件。
+
+:::
+
+### 数据修改
+
+通过调用 **this.setData(dataObject)** 方法，可以给页面 **data** 中的数据重新赋值
+
+```javascript
+Page({
+  data: {
+    count: 0,
+  },
+  //修改count的值
+  changeCount() {
+    this.setData({
+      count: this.data.count + 1,
+    });
+  },
+});
+```
+
+小程序中的事件传参比较特殊，不能在绑定事件的同时为事件处理函数传递参数
+
+```html {1}
+<button bind:tap="changeCount(123)">不可行</button>
+```
+
+可以为组件提供 **data-\*** 自定义属性传参，其中 \* 代表的是参数的名字。在事件处理函数中，通过 **event.target.dataset.参数名** 即可获取到具体参数的值。
+
+::: code-group
+
+```html [index.wxml]
+<button bind:tap="addNum" data-info="{{2}}">+</button>
+```
+
+```javascript [index.js]
+addNum(e){
+    this.setData({
+        num: this.data.num+e.target.dataset.info
+    })
+},
+```
+
+:::
+
+### 文本框绑定
+
+在小程序中，通过 **input** 事件来响应文本框的输入内容。通过 **bindinput**，可以为文本框绑定输入事件;通过 **model:value**，为文本框实现数据双向绑定。
+
+::: code-group
+
+```html [index.wxml]
+<input bindinput="inputHandler" />
+<!-- 双向绑定 -->
+<input model:value="{{input}}" />
+```
+
+```javascript [index.js]
+inputHandler(e:any){
+  console.log(e.detail.value)
+},
+```
+
+:::
+
+### 条件渲染
+
+在小程序中使用 **wx:if** 来判断是否需要渲染该代码块，也可以用 **wx:elif** 和 **wx:else** 来添加 else 判断
+
+```html
+<view wx:if="{{condition}}">条件为真时渲染</view>
+<view wx:elif="{{condition}}">条件为真时渲染</view>
+<view wx:else>条件为假时渲染</view>
+```
+
+如果要一次性控制多个组件的展示与隐藏，可以使用一个 `block` 标签将多个组件包装起来，并在 `block` 标签上使用 **wx:if** 控制属性
+
+```html
+<block wx:if="{{condition}}">
+  <view>条件为真时渲染</view>
+  <view>条件为真时渲染</view>
+</block>
+```
+
+::: tip 提示
+
+`block` 并不是一个组件，它只是一个包裹性质的容器，不会在页面中做任何渲染。
+
+:::
+
+直接使用 **hidden** 也能控制元素的显示与隐藏
+
+```html
+<view hidden="{{condition}}">条件为真时渲染</view>
+```
+
+::: info **wx:if** 与 **hidden** 的对比
+
+**wx:if**以动态创建的移除元素的方式，控制元素的展示与隐藏；**hidden** 以切换样式的方式(display:none/block;)，控制元素的显示与隐藏。
+
+频繁切换时，建议使用 **hidden**；控制条件复杂时，建议使用 **wx:if** 搭配 **wx:elif**、**wx:else** 进行展示与隐藏的切换。
+
+:::
+
+### 列表渲染
+
+通过 **wx:for** 可以根据指定的数组，循环渲染重复的组件结构。默认情况下，当前循环项的**索引**用 **index** 表示；当前循环项用 **item** 表示。
+
+```html
+<view wx:for="{{array}}"> 索引是：{{index}} 当前项是：{{item}} </view>
+```
+
+使用 **wx:for-index** 可以指定**当前循环项的索引**的变量名；使用 **wx:for-item** 可以指定**当前项**的变量名。
+
+```html
+<view wx:for="{{array}}" wx:for-index="idx" wx:for-item="itemName">
+  索引是：{{idx}} 当前项是：{{itemName}}
+</view>
+```
+
+小程序在实现列表渲染时，建议为渲染出来的列表项指定唯一的 **key** 值，从而提高渲染的效率
+
+```html
+<view wx:for="{{array}}" wx:key="id">使用数组项的id属性作为key</view>
+<view wx:for="{{array}}" wx:key="index">使用数组项的索引作为key</view>
+```
+
+## WXSS 模板样式
+
+WXSS(WeiXin Style Sheets) 是一套样式语言，用于描述 WXML 的组件样式，类似于网页开发中的 CSS。
+
+**WXSS 和 CSS 的区别**：
+
+新增了 rpx 尺寸单位：CSS 中需要手动进行像素单位换算，例如 rem;WXSS 在底层支持新的尺寸单位 rpx，在不同大小的屏幕上小程序会自动进行换算。
+
+提供了全局的样式和局部样式：项目根目录中的`app.wxss`会作用域所有小程序页面；局部页面的`.wxss`样式仅对当前页面生效。
+
+WXSS 仅支持部分 CSS 选择器：.class 和#id、element、并集选择器、后代选择器、::after 和::before 等伪类选择器。
+
+### rpx 尺寸单位
+
+rpx (responsive pixel)是微信小程序独有的，用来解决屏适配的尺寸单位。
+
+rpx 的实现原理非常简单：鉴于不同设备屏幕的大小不同，为了实现屏幕的自动适配，rpx 把所有设备的屏幕在宽度上等分为 750 份(即：当前屏幕的总宽度为 750rpx)。在较小的设备上，1rpx 所代表的宽度较小；在较大的设备上，1rpx 所代表的宽度较大。
+
+::: tip 提示
+
+官方建议：开发微信小程序时，设计师可以用 iPhone6 作为视觉稿的标准。在 iPhone6 上如果要绘制宽 100px，高 20px 的盒子，换算成 rpx 单位，宽高分别为 200rpx 和 40rpx。
+
+:::
 
 ## 小程序 API
 
