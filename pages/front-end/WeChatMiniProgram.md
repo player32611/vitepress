@@ -92,6 +92,12 @@ https://developers.weixin.qq.com/miniprogram/dev/devtools/stable.html
 
 **页面渲染**的过程分为四个步骤：加载解析页面的`.json`配置文件 -> 加载页面的`.wxml`模板和`.wxss`样式 -> 执行页面的`.js`文件，调用`Page()`创建页面实例 -> 页面渲染完成
 
+### 小程序窗口的组成部分
+
+![An image](/images/WeChatMiniProgram/windowComponents.png)
+
+其中导航栏区域和背景区域可以通过全局的 **window** 节点来进行相关的配置
+
 ## 基础操作
 
 ### 新建小程序页面
@@ -128,17 +134,33 @@ JSON 是一种数据格式，通过不同的 `.json` 文件，可以对小程序
 
 小程序项目中由 4 种 json 配置文件分别是: 项目根目录中的`app.json`配置文件、项目根目录中的`project.config.json`配置文件、项目根目录中的`sitemap.json`配置文件、每个页面文件夹中的`.json`配置文件。
 
-### app.json 文件
+### 全局配置
 
-`app.json` 是当前小程序的全局配置，包括了小程序的所有页面路径、窗口外观、界面表现、底部 tab 等。
+小程序根目录下的 `app.json` 文件是小程序的全局配置文件。常用的配置项如下：
 
-**pages**: 用来记录当前小程序所有页面的路径
+- **pages**: 用来记录当前小程序所有页面的存放路径
 
-**window**: 全局定义小程序所有页面的背景色、文字颜色等
+- **window**: 全局定义小程序窗口的外观
 
-**style**: 全局定义小程序组件所使用的样式版本
+  - **navigationBarTitleText**: 导航栏标题文字内容(**类型：String**)(**默认值: ""**)
 
-**sitemapLocation**: 用来指明 `sitemap.json` 的位置
+  - **navigationBarBackgroundColor**: 导航栏背景颜色(**类型：HexColor**)(**默认值: "#000000"**)
+
+  - **navigationBarTextStyle**: 导航栏标题颜色，仅支持 **black**/**white** (**类型：String**)(**默认值: "white"**)
+
+  - **backgroundColor**: 窗口的背景色(**类型：HexColor**)(**默认值: "#ffffff"**)
+
+  - **backgroundTextStyle**: 下拉 loading 的样式，仅支持 **dark**/**light** (**类型：String**)(**默认值: "dark"**)
+
+  - **enablePullDownRefresh**: 是否全局开启下拉刷新(**类型：Boolean**)(**默认值: false**)
+
+  - **onReachBottomDistance**: 页面上拉触底事件触发时距页面底部距离，单位为 px (**类型：Number**)(**默认值: 50**)
+
+- **tabBar**: 设置小程序底部的导航栏效果
+
+- **style**: 全局定义小程序组件所使用的样式版本（是否启用新版的组件样式）
+
+- **sitemapLocation**: 用来指明 `sitemap.json` 的位置
 
 ### project.config.json 文件
 
@@ -158,9 +180,19 @@ JSON 是一种数据格式，通过不同的 `.json` 文件，可以对小程序
 
 sitemap 的索引提示默认是开启的，如需要关闭 sitemap 的索引提示，可在小程序项目配置文件`project.config.json`中 **setting** 中配置字段 **checkSiteMap** 为 **false**。
 
-### 页面的.json 配置文件
+### 页面配置
 
-小程序中的每一个页面，可以使用`.json`文件来对本页面的窗口外观进行配置，**页面中的配置项会覆盖`app.json`的 window 中相同的配置项**。
+小程序中，每个页面都有自己的 `.json` 配置文件，用来对当前页面的窗口外观，页面效果等进行配置。
+
+如果某些小程序页面想要拥有特殊的窗口表现，此时，页面级别的 `.json` 配置文件，就可以实现这种需求。
+
+::: warning 注意
+
+- 当页面配置于全局配置冲突时，根据就近原则，最终的效果以页面配置为准。
+
+- 页面配置文件中关于 **tabBar** 配置项，不包含在 **window** 配置项中。
+
+:::
 
 ## 组件
 
@@ -521,6 +553,77 @@ inputHandler(e:any){
 <view wx:for="{{array}}" wx:key="index">使用数组项的索引作为key</view>
 ```
 
+## tabBar
+
+**tabBar** 是移动端应用常见的页面效果，用于实现多页面的快速切换。小程序中通常将其分为底部 tabBar 和顶部 tabBar
+
+::: warning 注意
+
+- tabBar 中只能配置最少 2 个、最多 5 个 tab 页签
+
+- 当渲染顶部 tabBar 时，不显示 icon，只显示文本
+
+:::
+
+### tabBar 的 6 个组成部分
+
+- **backgroundColor**: tabBar 的背景色
+
+- **selectedIconPath**: 选中时的图片路径
+
+- **borderStyle**: tabBar 上边框的颜色
+
+- **iconPath**: 未选中时的图片路径
+
+- **selectedColor**: tab 上的文字选中时的颜色
+
+- **color**: tab 上文字的默认(未选中)的颜色
+
+### tabBar 节点的配置项
+
+|      属性       |   类型   | 必填 | 默认值 |                    描述                     |
+| :-------------: | :------: | :--: | :----: | :-----------------------------------------: |
+|    position     |  String  |  否  | bottom |    tabBar 的位置，仅支持 **bottom/top**     |
+|   borderStyle   |  String  |  否  | black  | tabBar 上边框的颜色，仅支持 **black/white** |
+|      color      | HexColor |  否  |        |        tab 上文字的默认(未选中)颜色         |
+|  selectedColor  | HexColor |  否  |        |          tab 上文字的选中时的颜色           |
+| backgroundColor | HexColor |  否  |        |               tabBar 的背景色               |
+|      list       |  Array   |  是  |        |  tab 页签的列表，最少 2 个、最多 5 个 tab   |
+
+### 每个 tab 项的配置选项
+
+|       属性       |  类型  | 必填 |                          描述                          |
+| :--------------: | :----: | :--: | :----------------------------------------------------: |
+|     pagePath     | String |  是  |         页面路径，页面必须在 pages 中预先定义          |
+|       text       | String |  是  |                    tab 上显示的文字                    |
+|     iconPath     | String |  否  | 未选中时的图标路径；当 position 为 top 时，不显示 icon |
+| selectedIconPath | String |  否  |  选中时的图标路径；当 position 为 top 时，不显示 icon  |
+
+### 配置方法
+
+打开 `app.json` 文件，和 **pages**、**window** 平级，新增 **tabBar**节点
+
+```json
+"tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/lists/lists",
+        "text": "lists"
+      },
+      {
+          "pagePath": "pages/logs/logs",
+          "text": "logs",
+          "iconPath": "/images/logs.png",
+          "selectedIconPath": "/images/logs-selected.png"
+      },
+      {
+          "pagePath": "pages/index/index",
+          "text": "index"
+      }
+  ]
+}
+```
+
 ## WXSS 模板样式
 
 WXSS(WeiXin Style Sheets) 是一套样式语言，用于描述 WXML 的组件样式，类似于网页开发中的 CSS。
@@ -542,6 +645,32 @@ rpx 的实现原理非常简单：鉴于不同设备屏幕的大小不同，为�
 ::: tip 提示
 
 官方建议：开发微信小程序时，设计师可以用 iPhone6 作为视觉稿的标准。在 iPhone6 上如果要绘制宽 100px，高 20px 的盒子，换算成 rpx 单位，宽高分别为 200rpx 和 40rpx。
+
+:::
+
+### 样式导入
+
+使用 WXSS 提供的 **@import** 语法，可以导入外联的样式表。
+
+**@import** 后跟需要导入的外联样式表的相对路径，用 **;** 表示语句结束。
+
+```css
+@import "/common.wxss";
+```
+
+### 全局样式
+
+定义在 `app.wxss` 中的样式为全局样式，作用于每一个页面，无须单独导入。
+
+### 局部样式
+
+在页面的 `.wxss` 文件中定义的样式为局部样式，只作用于当前页面。
+
+::: warning 注意
+
+- 当局部样式和全局样式冲突时，根据就近原则，局部样式会覆盖全局样式
+
+- 当局部样式的权重大于或等于全局样式的权重时，才会覆盖全局的样式
 
 :::
 
