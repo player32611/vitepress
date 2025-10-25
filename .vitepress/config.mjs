@@ -34,7 +34,7 @@ export default defineConfig({
           { text: 'webpack', link: '/pages/front-end/webpack' },
           { text: 'React', link: '/pages/front-end/react' },
           { text: 'Vue', link: '/pages/front-end/vue' },
-          { text: '微信小程序', link: '/pages/front-end/WeChatMiniProgram' },
+          { text: '微信小程序', link: '/pages/front-end/wechat-miniprogram' },
         ]
       },
       {
