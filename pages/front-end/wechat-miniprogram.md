@@ -603,6 +603,193 @@ rpx 的实现原理非常简单：鉴于不同设备屏幕的大小不同，为�
 
 :::
 
+## 页面导航
+
+页面导航指的是页面之间的相互跳转。小程序中实现页面导航的方式有如下两种：
+
+- 声明式导航
+
+  - 在页面上声明一个`<navigation>`导航组件
+
+  - 通过点击`<navigation>`组件实现页面跳转
+
+- 编程式导航
+
+  - 调用小程序的导航 API，实现页面的跳转
+
+### 导航到 tabBar 页面
+
+tabBar 页面指的是被配置为 tabBar 中的项的页面。
+
+在使用 `<navigation>` 组件跳转到指定的 tabBar 页面时，需要指定 **url** 属性和 **open-type** 属性，其中：
+
+- url 表示要跳转的页面的地址，必须以 / 开头
+
+- open-type 表示跳转的方式，必须为 switchTab
+
+```html
+<navigator url="/pages/logs/logs" open-type="switchTab">点击登录</navigator>
+```
+
+或是调用 **wx.switchTab()** 方法，可以跳转到 tabBar 页面。其中 Object 参数对象的属性列表如下：
+
+|   属性   |   类型   | 是否必选 |                      说明                      |
+| :------: | :------: | :------: | :--------------------------------------------: |
+|   url    |  string  |    是    | 需要跳转的 tabBar 页面的路径，路径后不能带参数 |
+| success  | function |    否    |             接口调用成功的回调函数             |
+|   fail   | function |    否    |             接口调用失败的回调函数             |
+| complete | function |    否    |             接口调用结束的回调函数             |
+
+示例代码如下：
+
+::: code-group
+
+```html[lists.wxml]
+<button bind:tap="gotoLogs">点击查看日志</button>
+```
+
+```javascript[lists.js]
+gotoLogs(){
+  wx.switchTab({
+      url:'/pages/logs/logs'
+  })
+},
+```
+
+:::
+
+### 导航到非 tabBar 页面
+
+在使用 `<navigation>` 组件跳转到普通的非 tabBar 页面时，则需要指定 **url** 属性和 **open-type** 属性，其中：
+
+- url 表示要跳转的页面的地址，必须以 / 开头
+
+- open-type 表示跳转的方式，必须为 switchTab
+
+```html
+<navigator url="/pages/hidden/hidden" open-type="navigate">点击跳转</navigator>
+```
+
+::: warning 注意
+
+为了简便，在导航到非 tabBar 页面时，**open-type=navigate** 属性可以省略
+
+:::
+
+或是调用 **wx.navigateTo()** 方法，可以跳转到非 tabBar 页面。其中 Object 参数对象的属性列表如下：
+
+|   属性   |   类型   | 是否必选 |                        说明                        |
+| :------: | :------: | :------: | :------------------------------------------------: |
+|   url    |  string  |    是    | 需要跳转到的非 tabBar 页面的路径，路径后可以带参数 |
+| success  | function |    否    |               接口调用成功的回调函数               |
+|   fail   | function |    否    |               接口调用失败的回调函数               |
+| complete | function |    否    |  接口调用结束的回调函数（调用成功、失败都会执行）  |
+
+::: code-group
+
+```html[lists.wxml]
+<button bind:tap="goToHidden">点击跳转</button>
+```
+
+```javascript[lists.js]
+goToHidden(){
+  wx.navigateTo({
+      url:'/pages/hidden/hidden'
+  })
+},
+```
+
+:::
+
+### 后退导航
+
+如果要后退到上一页面或多级页面，则需要指定 **open-type** 属性和 **delta** 属性，其中：
+
+- open-type 的值必须是 **navigateBack**，表示要进行后退导航
+
+- delta 的值必须是数字，表示要后退的层级
+
+```html
+<navigator open-type="navigateBack" delta="1">返回</navigator>
+```
+
+::: warning 注意
+
+为了简便，如果只是后退到上一页面，则可以省略 **delta** 属性，因为其默认值就是 1。
+
+:::
+
+或是调用 **wx.navigateBack()** 方法，可以返回上一页面或多级页面。其中 Object 参数对象可选的属性列表如下：
+
+|   属性   |   类型   | 默认值 | 是否必选 |                         说明                          |
+| :------: | :------: | :----: | :------: | :---------------------------------------------------: |
+|  delta   |  number  |   1    |    否    | 返回的页面数，如果 delta 大于现有页面数，则返回到首页 |
+| success  | function |        |    否    |                接口调用成功的回调函数                 |
+|   fail   | function |        |    否    |                接口调用失败的回调函数                 |
+| complete | function |        |    否    |   接口调用结束的回调函数（调用成功、失败都会执行）    |
+
+::: code-group
+
+```html[hidden.wxml]
+<button bind:tap="goToBack">返回</button>
+```
+
+```javascript[hidden.js]
+goToBack(){
+  wx.navigateBack()
+},
+```
+
+:::
+
+### 导航传参
+
+对于声明式导航，`<navigator>` 组件的 **url** 属性用来指定将要跳转到的页面的路径。同时，路径的后面还可以携带参数：
+
+- 参数与路径之间使用 **?** 分隔
+
+- 参数键与参数值用 **=** 相连
+
+- 不同参数用 **&** 分隔
+
+```html
+<navigator url="/pages/hidden/hidden?number=1&name=lists">传递参数</navigator>
+```
+
+对于编程式导航，调用 **wx.navigateTo()** 方法跳转页面时，也可以携带参数。
+
+::: code-group
+
+```html[lists.wxml]
+<button bind:tap="goToHiddenWithParameter">传递参数</button>
+```
+
+```javascript[lists.js]
+goToHiddenWithParameter(){
+    wx.navigateTo({
+        url:'/pages/hidden/hidden?number=2&name=lists'
+    })
+},
+```
+
+:::
+
+### 接收导航参数
+
+通过声明式导航传参或编程式导航传参所携带的参数，可以直接在 **onLoad** 事件中获取。
+
+```javascript
+data: {
+  query:{}//参数对象
+},
+
+onLoad(options) {
+  this.setData({
+      query:options
+  })
+},
+```
+
 ## tabBar
 
 **tabBar** 是移动端应用常见的页面效果，用于实现多页面的快速切换。小程序中通常将其分为底部 tabBar 和顶部 tabBar
