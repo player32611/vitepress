@@ -790,6 +790,49 @@ onLoad(options) {
 },
 ```
 
+## 页面事件
+
+### 下拉刷新事件
+
+**下拉刷新**是移动端的专有名词，指的是通过手指在屏幕上的下拉滑动操作，从而重新加载页面数据的行为。
+
+启用下拉刷新有两种方式：
+
+- **全局开启下拉刷新**: 在 `app.json` 的 window 节点中，将 enablePullDownRefresh 设置为 true
+
+- **局部开启下拉刷新**: 在页面的 `.json`配置文件中，将 enablePullDownRefresh 设置为 true
+
+```json
+{
+  //...
+  "enablePullDownRefresh": true
+  //...
+}
+```
+
+在实际开发中，推荐使用第 2 种方式，为需要的页面单独开启下拉刷新的效果。
+
+### 监听下拉刷新事件
+
+在页面的 `.js`文件中，通过 **onPullDownRefresh()** 函数即可监听当前页面的下拉刷新事件。
+
+```javascript
+onPullDownRefresh() {
+  console.log("刷新")
+},
+```
+
+### 停止下拉刷新的效果
+
+当处理完下拉刷新后，下拉刷新的 loading 效果会一直显示，不会主动消失，所以需要手动隐藏 loading 效果。此时，调用 **wx.stopPullDownRefresh()** 方法可以停止当前页面的下拉刷新。
+
+```javascript
+onPullDownRefresh() {
+  console.log("刷新")
+  wx.stopPullDownRefresh()
+},
+```
+
 ## tabBar
 
 **tabBar** 是移动端应用常见的页面效果，用于实现多页面的快速切换。小程序中通常将其分为底部 tabBar 和顶部 tabBar
