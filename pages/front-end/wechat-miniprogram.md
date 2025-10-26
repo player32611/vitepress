@@ -128,6 +128,36 @@ https://developers.weixin.qq.com/miniprogram/dev/devtools/stable.html
 }
 ```
 
+### 添加 loading 提示效果
+
+调用**wx.showLoading()**方法，即可显示 loading 提示框，但需主动调用 **wx.hideLoading** 才能关闭提示框
+
+```javascript
+//上拉触底时加载数据
+getDatas(){
+  wx.showLoading({title: '数据加载中...'})
+  wx.request({
+    //...
+    complete: ()=>{
+      wx.hideLoading()
+    }
+  })
+}
+```
+
+### 动态设置标题内容
+
+调用 **wx.setNavigationBarTitle()** 方法，即可动态设置当前页面的标题内容。
+
+```javascript
+//页面初次渲染完成时设置标题
+onReady(){
+  wx.setNavigationBarTitle({
+    title: 'test'
+  })
+}
+```
+
 ## JSON 配置文件
 
 JSON 是一种数据格式，通过不同的 `.json` 文件，可以对小程序项目进行不同级别的配置。
@@ -603,6 +633,96 @@ rpx 的实现原理非常简单：鉴于不同设备屏幕的大小不同，为�
 
 :::
 
+## WXS 脚本
+
+WXS (WeiXin Script) 是小程序独有的一套脚本语言，结合 WXML，可以构建出页面的结构。
+
+虽然 wxs 的语法类似于 JavaScript，但是 wxs 和 JavsScript 是完全不同的两种语言：
+
+- wxs 有自己的数据类型： **number 数值类型**、**string 字符串类型**、**boolean 布尔类型**、**object 对象类型**、**function 函数类型**、**array 数组类型**、**date 日期类型**、**regexp 正则表达式类型**
+
+- wxs 不支持类似于 ES6 及以上的语法形式
+
+  - 不支持：**let**、**const**、**解构赋值**、**展开运算符**、**箭头函数**、**对象属性简写**、etc...
+
+  - 支持：**var 定义变量**、**普通 function 函数等类似于 ES5 的语法**
+
+- wxs 遵循 CommonJS 规范：**module 对象**、**require()函数**、**module.exports 对象**
+
+wxs 典型的应用场景就是“过滤器”，经常配合 Mustache 语法进行使用。
+
+### 内嵌 wxs 脚本
+
+wxs 代码可以编写在 wxml 文件中的`wxs`标签内，就像 JavaScript 代码可以编写在 html 文件中的 `<script>`标签内一样。
+
+wxml 文件中的每个 `<wxs></wxs>`标签，必须提供 **module** 属性，用来指定当前 wxs 的模块名称，方便在 wxml 中访问模块中的成员：
+
+```
+<view>{{m1.toUpper(username)}}</view>
+
+<wxs module="wxsModule">
+  module.exports.toUpper = function(str){
+    return str.toUpperCase();
+  }
+</wxs>
+```
+
+### 外联的 wxs 脚本
+
+wxs 代码还可以编写在以 `.wxs` 为后缀名的文件内，就像 javaScript 代码可以编写在以 `.js` 为后缀名的文件中一样。
+
+```
+function toLower(str){
+  return str.toLowerCase();
+}
+
+module.exports = {
+  toLower:toLower
+};
+```
+
+在 wxml 中引入外联的 wxs 脚本时，必须为`<wxs>`标签添加 **module** 和 **src** 属性，其中：
+
+- **module** 用来指定模块的名称
+
+- **src** 用来指定要引入的脚本的路径，且必须是相对路径
+
+```
+<!-- 调用方法 -->
+<view>{{m2.toLower(country)}}</view>
+
+<!-- 应用外联脚本 -->
+<wxs src="../../utils/tools.wxs" module="m2"></wxs>
+```
+
+::: warning 注意
+
+在 wxs 中定义的函数不能作为组件的事件回调函数。例如，下面的用法是错误的：
+
+```
+<button bind:tap="m2.toLower">按钮</button>
+```
+
+:::
+
+::: warning 注意
+
+wxs 的运行环境和其它的 JavaScript 代码是隔离的。体现在如下两个方面：
+
+- wxs 不能调用 js 中定义的函数
+
+- wxs 不能调用小程序提供的 API
+
+:::
+
+::: details wxs 的优点
+
+- 在 iOS 设备上，小程序内的 WXS 会比 JavaScript 代码快 2~20 倍
+
+- 在 android 设备上，二者的运行效率无差异
+
+:::
+
 ## 页面导航
 
 页面导航指的是页面之间的相互跳转。小程序中实现页面导航的方式有如下两种：
@@ -812,9 +932,7 @@ onLoad(options) {
 
 在实际开发中，推荐使用第 2 种方式，为需要的页面单独开启下拉刷新的效果。
 
-### 监听下拉刷新事件
-
-在页面的 `.js`文件中，通过 **onPullDownRefresh()** 函数即可监听当前页面的下拉刷新事件。
+在页面的 `.js`文件中，通过 **onPullDownRefresh()** 函数即可**监听**当前页面的下拉刷新事件。
 
 ```javascript
 onPullDownRefresh() {
@@ -822,15 +940,35 @@ onPullDownRefresh() {
 },
 ```
 
-### 停止下拉刷新的效果
-
-当处理完下拉刷新后，下拉刷新的 loading 效果会一直显示，不会主动消失，所以需要手动隐藏 loading 效果。此时，调用 **wx.stopPullDownRefresh()** 方法可以停止当前页面的下拉刷新。
+当处理完下拉刷新后，下拉刷新的 loading 效果会一直显示，不会主动消失，所以需要手动隐藏 loading 效果。此时，调用 **wx.stopPullDownRefresh()** 方法可以**停止**当前页面的下拉刷新。
 
 ```javascript
 onPullDownRefresh() {
   console.log("刷新")
   wx.stopPullDownRefresh()
 },
+```
+
+### 上拉触底事件
+
+**上拉触底**是移动端的专有名词，通过手指在屏幕上的上拉滑动操作，从而加载更多数据的行为。
+
+在页面的 `.js`文件中，通过 **onReachBottom()** 函数即可**监听**当前页面的上拉触底事件。
+
+```javascript
+onReachBottom() {
+  console.log("上拉触底")
+},
+```
+
+可以在全局或页面的 `.json`配置文件中，通过 **onReachBottomDistance** 属性来配置上拉触底的距离。小程序默认的触底距离是 50px。
+
+```json
+{
+  //...
+  "onReachBottomDistance": 200
+  //...
+}
 ```
 
 ## tabBar
@@ -988,9 +1126,64 @@ postData(){
 
 ## 生命周期函数
 
-### onLoad()
+### 什么是生命周期
 
-使用案例有：在页面加载时自动发起网络请求获取数据
+在小程序中，生命周期分为两类，分别是：
+
+- **应用生命周期** : 特指小程序从启动 -> 运行 -> 销毁的过程
+
+- **页面生命周期** : 特指小程序中，每个页面的加载 -> 渲染 -> 销毁的过程
+
+### 什么是生命周期函数
+
+**生命周期函数**：是由小程序框架提供的内置函数，会伴随着生命周期，自动按次序执行。
+
+**生命周期函数的作用**：允许程序员在特定的时间点，执行某些特定的操作。例如，页面刚加载的时候，可以在 **onLoad()** 生命周期函数中初始化页面的数据。
+
+小程序中的生命周期分为两类，分别是：
+
+- **应用的生命周期函数** : 特指小程序从启动 -> 运行 -> 销毁期间依次调用的那些函数
+
+- **页面的生命周期函数** : 特指小程序中，每个页面从加载 -> 渲染 -> 销毁期间依次调用的那些函数
+
+### 应用的生命周期函数
+
+小程序的应用生命周期函数需要在 `app.js` 中进行声明，示例代码如下：
+
+```javascript
+App({
+  //当小程序初始化完成时，会触发 onLaunch（全局只触发一次）
+  onLaunch() {
+    console.log("小程序初始化完成");
+  },
+  //当小程序启动，或从后台进入前台显示，会触发 onShow
+  onShow(opts) {
+    console.log(opts.query);
+  },
+  //当小程序从前台进入后台，会触发 onHide
+  onHide() {
+    console.log("小程序进入后台");
+  },
+});
+```
+
+### 页面的生命周期函数
+
+小程序的页面生命周期函数需要在页面的 `.js` 中进行声明，示例代码如下：
+
+```javascript
+Page({
+  onLoad() {}, //监听页面加载，一个页面只调用1次
+  onShow() {}, //监听页面显示
+  onReady() {}, //监听页面初次渲染完成，一个页面只调用1次
+  onHide() {}, //监听页面隐藏
+  onUnload() {}, //监听页面卸载，一个页面只调用1次
+});
+```
+
+### 使用案例
+
+**onLoad()** 使用案例有：在页面加载时自动发起网络请求获取数据
 
 ```javascript
 onLoad(){
