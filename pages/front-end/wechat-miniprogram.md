@@ -1130,6 +1130,88 @@ styleIsolation 的可选值有：
 | apply-shared |   否   |                      表示**页面 wxss 样式将影响到自定义组件**，但自定义组件 wxss 中指定的样式不会影响页面                      |
 |    shared    |   否   | 表示页面 wxss 样式将影响到自定义组件，自定义组件 wxss 中指定的样式也会影响页面和其它设置了 apply-shared 或 shared 的自定义组件 |
 
+### 数据、方法和属性
+
+在小程序组件中，用于组件模板渲染的私有数据，需要定义到 **data** 节点中，示例如下
+
+```javascript
+Component({
+  data: {
+    count: 0,
+  },
+});
+```
+
+在小程序组件中，事件处理函数和自定义方法需要定义到 **methods** 节点中，示例代码如下：
+
+```javascript
+Component({
+  // 组件的方法列表
+  methods: {
+    // 事件处理函数
+    addCount() {
+      this.setData({
+        count: this.data.count + 1,
+      });
+      // 通过 this 直接调用自定义方法
+      this._showCount();
+    },
+    // 自定义方法建议以 _ 开头
+    _showCount() {
+      wx.showToast({
+        title: "count:" + this.data.count,
+      });
+    },
+  },
+});
+```
+
+在小程序组件中，**properties** 是组件的对外属性，用来接受外界传递到组件中的数据，示例代码如下：
+
+::: code-group
+
+```javascript [index.js]
+Component({
+  properties: {
+    // 简化定义属性的方式[不需指定属性默认值时，可以使用简化方法]
+    min: Number,
+    // 完整定义属性的方式[当需要指定属性默认值时，建议使用此方式]
+    max: {
+      type: Number, //属性值的数据类型
+      value: 10, //属性默认值
+    },
+  },
+});
+```
+
+```html [anotherIndex.wxml]
+<my-test1 max="8"></my-test1>
+```
+
+:::
+
+::: tip **data** 和 **properties** 的区别
+
+在小程序的组件中，properties 属性和 data 数据的用法相同，它们都是可读可写的，只不过：
+
+- data 更倾向于**存储组件的私有数据**
+
+- properties 更倾向于**存储外界传递到组件中的数据**
+
+:::
+
+由于 **data 数据** 和 **properties 属性** 在本质上没有任何区别，因此 properties 属性的只也可以用于页面渲染，或使用 **setData()** 为 properties 中的属性重新赋值，示例代码如下：
+
+```javascript
+Component({
+  methods: {
+    addCount() {
+      this.setData({ max: this.properties.max + 1 }); // 使用 setData 修改属性的值
+    },
+  },
+});
+```
+
 ### 组件和页面的区别
 
 - 组件的 `.json` 文件中需要声明 **"component": true** 属性
