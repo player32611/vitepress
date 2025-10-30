@@ -1352,6 +1352,88 @@ Component({
 });
 ```
 
+### 插槽
+
+在自定义组件的 wxml 结构中，可以提供一个 `<slot>` 节点(插槽)，用于承载组件使用者提供的 wxml 结构。
+
+在小程序中，默认每个自定义组件中只允许使用一个 `<slot>` 进行占位，这种个数上的限制叫做单个插槽。
+
+```html
+<!-- 组件的封装者 -->
+<view>插槽:<slot></slot>:插槽</view>
+
+<!-- 组件的使用者 -->
+<my-test1><view>插槽内的内容</view></my-test1>
+```
+
+需要使用多 `<slot>` 插槽时，可以在组件的 `.js` 文件中，通过如下方式进行启用。
+
+```javascript
+Component({
+  options: {
+    multipleSlots: true,
+  },
+});
+```
+
+此时便可以在组件的 `.wxml` 中使用多个 `<slot>` 标签，以不同的 **name** 来区分不同的插槽。在使用带有多个插槽的自定义组件时，需要用 **slot** 属性来将节点插入到不同的 `<slot>` 中。
+
+```html
+<!-- 组件的封装者 -->
+<view>插槽1:<slot name="slot1"></slot>:插槽1</view>
+<text>插槽2:<slot name="slot2"></slot>:插槽2</text>
+
+<!-- 组件的使用者 -->
+<my-test1>
+  <view slot="slot1">插槽内的内容</view>
+  <text slot="slot2">插槽内的内容</text>
+</my-test1>
+```
+
+### 父子组件之间的通信
+
+父子组件之间通信有三种方式：
+
+- **属性绑定** : 用于父组件向子组件的指定属性设置数据，仅能设置 JSON 兼容的数据
+
+- **事件绑定** : 用于子组件向父组件传递数据，可以传递任意数据
+
+- **获取组件实例** : 父组件可以通过 **this.selectComponent()** 获取子组件实例对象，这样就可以直接访问子组件的任意数据和方法
+
+---
+
+**属性绑定**用于实现父向子传值，而且**只能传递普通类型的数据**，无法将方法传递给子组件。父组件的示例代码如下:
+
+::: code-group
+
+```javascript[parent.js]
+data: {
+  count: 0,
+}
+```
+
+```html[parent.wxml]
+<my-test1 count="{{count}}"></my-test1>
+```
+
+:::
+
+子组件在 **properties** 节点中**声明对应的属性并使用**：
+
+::: code-group
+
+```javascript[child.js]
+properties: {
+  count: Number,
+}
+```
+
+```html[child.wxml]
+<text>{{count}}</text>
+```
+
+:::
+
 ### 组件和页面的区别
 
 - 组件的 `.json` 文件中需要声明 **"component": true** 属性
@@ -1522,3 +1604,7 @@ onLoad(){
 **同步 API**：以 **Sync** 结尾的 API，执行结果可以通过函数返回值直接获取，如果执行出错会抛出异常
 
 **异步 API**：类似于 jQuery 中的 **$.ajax(options)** 函数，需要通过 **success**、**fail**、**complete** 接收调用的结果
+
+```
+
+```
