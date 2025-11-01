@@ -1434,6 +1434,130 @@ properties: {
 
 :::
 
+::: warning 注意
+
+此时在子组件中修改子组件接受到的数据不会同步到父组件中!
+
+:::
+
+---
+
+**事件绑定**用于实现**子向父传值**，可以传递任何类型的数据。使用步骤如下：
+
+1. 在**父组件**的 `.js` 中，定义一个函数，这个函数即将通过自定义事件的形式，传递给子组件
+
+2. 在**父组件**的 `.wxml` 中 通过自定义事件的形式，将步骤 1 中定义的函数引用，传递给子组件
+
+3. 在**子组件**的 `.js` 中，通过调用**this.triggerEvent('自定义事件名称',{参数对象})** 方法，将数据发送到父组件
+
+4. 在**父组件**的 `.js` 中，通过 **e.detail** 获取到子组件传递过来的数据
+
+::: code-group
+
+```javascript[parent.js]
+addHidden(e){
+  console.log(e.detail.value)
+  this.setData({
+      hidden:e.detail.value
+  })
+}
+```
+
+```html[parent.wxml]
+<my-test1 hidden="hidden" bind:add="addHidden"></my-test1>
+```
+
+```javascript[child.js]
+methods: {
+  AddHidden(){
+      this.setData({
+          hidden:this.properties.hidden+1
+      })
+      this.triggerEvent('add',{value:this.properties.hidden})
+  }
+}
+```
+
+:::
+
+---
+
+想要获取组件实例，可在父组件里调用 **this.selectComponent("id 或 class 选择器")** ，获取子组件实例对象，从而直接访问子组件的任意数据何方法。调用时需要传入一个**选择器**，例如 **this.selectComponent(".my-test")**。
+
+::: code-group
+
+```html[parent.wxml]
+<my-test class="customA" id="cA"></my-test>
+```
+
+```javascript[parent.js]
+getChild(){
+  const child = this.selectComponent('.customA')
+  console.log(child)
+}
+```
+
+:::
+
+### behaviors
+
+behaviors 是小程序中，**用于实现组件间代码共享**的特性，类似于 Vue.js 中的 "mixins" 。
+
+每个 behavior 可以包含一组属性、数据、生命周期函数和方法。组件引用它时，它的属性、数据和方法会被合并到组件中。
+
+每个组件可以引用多个 behavior，behavior 也可以引用其他 behavior。
+
+调用 **Behavior(object)** 方法即可创建一个**共享的 behavior 实例对象**，供所有的组件使用：
+
+```javascript
+// miniprogram/behaviors/behavior.js
+module.exports = Behavior({
+  data: {
+    count: 0,
+  },
+  properties: {},
+  methods: {},
+});
+```
+
+在组件中，使用 **require()** 方法导入需要的 behavior ，**挂载后即可访问 behavior 中的数据或方法**。
+
+::: code-group
+
+```javascript[index.js]
+const myBehavior = require("../../behaviors/behavior.js");
+
+Component({
+  behaviors: [myBehavior],
+});
+```
+
+```html[index.wxml]
+<view>{{count}}</view>
+```
+
+:::
+
+behavior 中所有可用的节点包括：
+
+|   可用的节点   |     类型     | 是否必填 |        描述         |
+| :------------: | :----------: | :------: | :-----------------: |
+| **properties** |  Object Map  |    否    |    同组件的属性     |
+|    **data**    |    Object    |    否    |    同组件的数据     |
+|  **methods**   |    Object    |    否    | 同自定义组件的方法  |
+| **behaviors**  | String Array |    否    | 引入其它的 behavior |
+|    created     |   Function   |    否    |    生命周期函数     |
+|    attached    |   Function   |    否    |    生命周期函数     |
+|     ready      |   Function   |    否    |    生命周期函数     |
+|     moved      |   Function   |    否    |    生命周期函数     |
+|    detached    |   Function   |    否    |    生命周期函数     |
+
+::: tip 同名字段的覆盖和组合规则
+
+参考小程序官方文档给出的说明：https://developers.weixin.qq.com/miniprogram/dev/framework/custom-component/behaviors.html
+
+:::
+
 ### 组件和页面的区别
 
 - 组件的 `.json` 文件中需要声明 **"component": true** 属性
