@@ -1044,6 +1044,10 @@ onReachBottom() {
 }
 ```
 
+### 自定义 tabBar
+
+详细信息请查看：https://developers.weixin.qq.com/miniprogram/dev/framework/ability/custom-tabbar.html
+
 ## 自定义组件
 
 ### 创建组件
@@ -2020,6 +2024,10 @@ onLoad(){
 同一个分包中的页面享有**共同的预下载大小限额 2M**
 
 :::
+
+## uni-app
+
+[uni-app 官网](https://uniapp.dcloud.net.cn/)
 
 ## 更多信息
 
