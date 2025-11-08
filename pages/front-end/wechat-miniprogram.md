@@ -477,6 +477,8 @@ Page({
 });
 ```
 
+### 事件传参
+
 小程序中的事件传参比较特殊，不能在绑定事件的同时为事件处理函数传递参数
 
 ```html {1}
@@ -1566,6 +1568,133 @@ behavior 中所有可用的节点包括：
 
 - 组件的事件处理函数需要定义到 **methods** 节点中
 
+## 小程序使用 npm 包
+
+目前，小程序中已经支持使用 npm 安装第三方包，从而来提高小程序的开发效率。但是，在小程序中使用 npm 包有如下 3 个限制：
+
+- 不支持依赖于 **Node.js** 内置库的包
+
+- 不支持依赖于**浏览器内置对象**的包
+
+- 不支持依赖于**C++插件**的包
+
+### 小程序可使用的 npm 包
+
+- **Vant Weapp** : https://youzan.github.io/vant-weapp
+
+## 全局数据共享
+
+**全局数据共享**(又叫做：状态管理)是为了解决组件之间数据共享的问题。
+
+在小程序中，可使用 **mobx-miniprogram** 配合 **mobx-miniprogram-bindings** 来实现全局数据共享。其中：
+
+- **mobx-miniprogram** 用来**创建 Store 实例对象**
+
+- **mobx-miniprogram-bindings** 用来**把 Store 中的共享数据或方法，绑定到组件或页面中使用**
+
+### 安装 MobX 相关的包
+
+在项目中运行如下的命令，安装 MobX 相关的包：
+
+```bash
+npm install --save mobx-miniprogram mobx-miniprogram-bindings
+```
+
+### 创建 MobX 的 Store 实例对象
+
+在项目根目录下的**store** 目录下创建一个 **store.js** 文件，用于创建 Store 实例对象：
+
+```javascript
+import { observable, action } from "mobx-miniprogram";
+
+export const store = observable({
+  //数据字段
+  numA: 1,
+  numB: 2,
+  //计算属性
+  get sum() {
+    return this.numA + this.numB;
+  },
+  //方法，用来修改 store 中的数据
+  addNumA: action(function () {
+    this.numA += 1;
+  }),
+});
+```
+
+### 将 Store 中的成员绑定到页面中
+
+使用 createStoreBindings 创建绑定，它会返回一个包含清理函数的对象用于取消绑定。在页面 onUnload （自定义组件 detached ）时一定要调用清理函数，否则将导致内存泄漏！
+
+```javascript
+import { createStoreBindings } from "mobx-miniprogram-bindings";
+import { store } from "../../stores/store";
+
+Page({
+  onLoad(options: any) {
+    this.storeBindings = createStoreBindings(this, {
+      store,
+      fields: {
+        numA: () => store.numA,
+        numB: () => store.numB,
+        sum: "sum",
+      },
+      actions: {
+        addNumA: "addNumA",
+      },
+    });
+  },
+  addStoreNumA() {
+    this.addNumA();
+  },
+  onUnload() {
+    this.storeBindings.destroyStoreBindings();
+  },
+});
+```
+
+页面中可以直接使用 store 中的数据或方法。
+
+```html
+<view>store里的numA:{{numA}}、numB:{{numB}}、sum:{{sum}}</view>
+<button bind:tap="addStoreNumA">store里的numA++</button>
+```
+
+### 将 Store 中的成员绑定到组件中
+
+```javascript
+import { storeBindingsBehavior } from "mobx-miniprogram-bindings";
+import { store } from "./store";
+
+Component({
+  behaviors: [storeBindingsBehavior], // 添加这个 behavior
+  storeBindings: {
+    store, // 指定要绑定的 store 实例对象
+    fields: {
+      // 指定要绑定的 store 字段数据
+      numA: () => store.numA, // 绑定字段的第一种方式
+      numB: (store) => store.numB, // 绑定字段的第二种方式
+      sum: "sum", // 绑定字段的第三种方式
+    },
+    actions: {
+      //指定要绑定的方法
+      buttonTap: "update",
+    },
+  },
+  methods: {
+    myMethod() {
+      this.data.sum; // 来自于 MobX store 的字段
+    },
+  },
+});
+```
+
+### 更多信息
+
+- [mobx-miniprogram](https://github.com/wechat-miniprogram/mobx)
+
+- [mobx-miniprogram-bindings](https://github.com/wechat-miniprogram/mobx-miniprogram-bindings)
+
 ## 网络请求
 
 ::: warning 注意
@@ -1729,6 +1858,169 @@ onLoad(){
 
 **异步 API**：类似于 jQuery 中的 **$.ajax(options)** 函数，需要通过 **success**、**fail**、**complete** 接收调用的结果
 
+## 分包
+
+分包指的是把一个**完整的小程序项目**，按照需求**划分为不同的子包**，在构建时打包成不同的分包，用户在使用时**按需进行加载**。
+
+对小程序进行分包的好处主要有以下两点
+
+- 可以优化小程序首次启动的下载时间
+
+- 在多团队共同开发时可以更好的解耦协作
+
+### 分包后项目的构成
+
+分包后，小程序项目有 **1 个主包** + **多个分包**组成：
+
+- 主包：一般只包含项目的**启动页面**或 **TabBar 页面**、以及所有分包都需要用到的一些**公共资源**
+
+- 分包：只包含和当前分包有关的页面和私有资源
+
+### 分包的加载规则
+
+在小程序启动时，默认会**下载主包**并启动**主包内页面**
+
+- tabBar 页面需要放到主包中
+
+当用户进入分包内某个页面时，**客户端会把对应分包下载下来**，下载完成后再进行展示
+
+- 非 tabBar 页面可以按照功能的不同，划分为不同的分包之后，进行按需下载
+
+### 分包的体积限制
+
+目前，小程序分包的大小有以下两个限制：
+
+- 整个小程序所有分包大小不超过 **16M** (主包 + 所有分包)
+
+- 单个分包/主包大小不能超过 **2M**
+
+### 打包原则
+
+- 小程序会按 **subpackages** 的配置进行分包， subpackages 之外的目录将被打包到主包中
+
+- 主包也可以有自己的 pages (即最外层的 pages 字段)
+
+- tabBar 页面必须在主包内
+
+- 分包之间不能相互嵌套
+
+### 引用原则
+
+- 主包无法引用分包内的私有资源
+
+- 分包之间不能相互引用私有资源
+
+- 分包可以引用主包内的公共资源
+
+### 分包的配置方法
+
+想要为小程序项目进行分包，首先需要调整小程序目录结构：
+
+![An image](/images/WeChatMiniProgram/packagesLists.png)
+
+同时在 `app.json` 的 **subpackages** 节点中声明分包的结构
+
+![An image](/images/WeChatMiniProgram/packagesConfigures.png)
+
+```json
+{
+  "pages": [
+    // 主包的所有页面
+    "pages/index/index",
+    "pages/logs/logs"
+  ],
+  "subpackages": [
+    // 通过 subpackages 节点，声明的分包的结构
+    {
+      "root": "packageA", // 第一个分包的根目录
+      "pages": [
+        // 当前分包下，所有页面的相对存放路径
+        "packageA/pages/pageA1",
+        "packageA/pages/pageA2"
+      ]
+    },
+    {
+      "root": "packageB", // 第二个分包的根目录
+      "name": "pack2", // 分包的别名
+      "pages": [
+        // 当前分包下，所有页面的相对存放路径
+        "packageB/pages/pageB1",
+        "packageB/pages/pageB2"
+      ]
+    }
+  ]
+}
 ```
 
+### 独立分包
+
+开发者可以按需，将某些**具有一定功能独立性的页面**配置到**独立分包**中。
+
+独立分包本质上也是分包，只不过它比较特殊，**可以独立于主包和其它分包而单独运行**。
+
+独立分包的配置方法类似于不同分包的配置方法，但需格外配置 **"independent"** 节点：
+
+```json
+{
+  "pages": ["pages/index/index", "pages/logs/logs"],
+  "subpackages": [
+    {
+      "root": "packageA",
+      "pages": ["packageA/pages/pageA1", "packageA/pages/pageA2"]
+    },
+    {
+      "root": "packageB",
+      "name": "pack2",
+      "pages": ["packageB/pages/pageB1", "packageB/pages/pageB2"],
+      "independent": true // 通过此节点，声明当前分包为“独立分包”
+    }
+  ]
+}
 ```
+
+::: tip 独立分包和普通分包的区别
+
+最主要的区别：**是否依赖于主包才能运行**
+
+- 普通分包必须依赖于主包才能运行
+
+- 独立分包可以在不下载主包的情况下，独立运行
+
+:::
+
+::: warning 注意
+
+- 一个小程序中可以有多个独立分包
+
+- 独立分包中不能引用主包内的公共资源
+
+:::
+
+### 分包预下载
+
+分包预下载指的是：在进入小程序的某个页面时，**由框架自动预下载可能需要的分包**，从而提升进入后续分包页面时的启动速度。
+
+**预下载分包的行为，会在进入指定的页面时触发**。在`app.json`中，使用**preloadRule**节点定义分包的与下载规则，示例代码如下：
+
+```json
+{
+  "preloadRule": {
+    // 分包预下载的规则
+    "pages/index/index": {
+      // 触发分包预下载的页面路径
+      "network": "all", // 表示在指定的网络模式下进行预下载
+      "packages": ["packageA"] // 表示进入页面后，预下载那些分包
+    }
+  }
+}
+```
+
+::: tip 限制
+
+同一个分包中的页面享有**共同的预下载大小限额 2M**
+
+:::
+
+## 更多信息
+
+更多信息请查看：[小程序官方文档](https://developers.weixin.qq.com/miniprogram/dev/framework/)
