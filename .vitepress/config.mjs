@@ -42,6 +42,12 @@ export default defineConfig({
         items: [
           { text: '常用函数', link: '/pages/gms2/common-functions' }
         ]
+      },
+      {
+        text: '算法',
+        items: [
+          { text: 'C++基础',link:'/pages/algorithm/c++-basic'}
+        ]
       }
     ],
 
